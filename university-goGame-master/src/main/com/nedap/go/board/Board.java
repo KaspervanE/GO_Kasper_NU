@@ -222,11 +222,6 @@ public class Board {
     return false;
   }
 
-  // Check if there exists a capture on the current board
-  public boolean captureExists() {
-    return (!createGroups().isEmpty());
-  }
-
   // Capture the groups if any
   public void captureGroups(Stone currentStone) {
     List<Group> groups = createGroups();
@@ -346,53 +341,53 @@ public class Board {
     }
   }
 
-  @Override
-  public String toString() {
-    String str = "";
-    String splitLine = "---";
-    for (int i = 0; i < SIZE - 1; i++) {
-      splitLine += "+---";
-    }
-    str += "|" + splitLine + "|\n";
-    for (int i = 0; i < SIZE; i++) {
-      str += "|";
-      for (int j = 0; j < SIZE; j++) {
-        if (this.getField(j + SIZE * i) == Stone.EMPTY) {
-          if (j + SIZE * i < 10) {
-            str += " " + (j + SIZE * i) + " |";
-          } else if (j + SIZE * i < 100) {
-            str += " " + (j + SIZE * i) + "|";
-          } else {
-            str += (j + SIZE * i) + "|";
-          }
-        } else {
-          str += " " + this.getField(j + SIZE * i) + " |";
-        }
-      }
-      str += "\n|" + splitLine + "|\n";
-    }
-    return str;
-  }
-
-
-  public static void main(String[] args) {
-    Board board = new Board(9);
-    board.setField(Stone.BLACK, 0);
-    board.setField(Stone.BLACK, 9);
-    board.setField(Stone.WHITE, 1);
-    board.setField(Stone.WHITE, 10);
-    board.setField(Stone.WHITE, 18);
-    board.captureGroups(Stone.WHITE);
-    System.out.println(board.toString());
-    Map<Stone, Integer> territoriesScores = board.determineTerritories();
-    for (Stone stone : territoriesScores.keySet()) {
-      int totalScore = territoriesScores.get(stone) + board.getStonesOnBoard(stone);
-      if (stone == Stone.EMPTY) {
-        System.out.println("The neutral area consist of: " + totalScore + " points.");
-      } else {
-        System.out.println(stone + " has a total of: " + totalScore + " points.");
-      }
-    }
-  }
+//  @Override
+//  public String toString() {
+//    String str = "";
+//    String splitLine = "---";
+//    for (int i = 0; i < SIZE - 1; i++) {
+//      splitLine += "+---";
+//    }
+//    str += "|" + splitLine + "|\n";
+//    for (int i = 0; i < SIZE; i++) {
+//      str += "|";
+//      for (int j = 0; j < SIZE; j++) {
+//        if (this.getField(j + SIZE * i) == Stone.EMPTY) {
+//          if (j + SIZE * i < 10) {
+//            str += " " + (j + SIZE * i) + " |";
+//          } else if (j + SIZE * i < 100) {
+//            str += " " + (j + SIZE * i) + "|";
+//          } else {
+//            str += (j + SIZE * i) + "|";
+//          }
+//        } else {
+//          str += " " + this.getField(j + SIZE * i) + " |";
+//        }
+//      }
+//      str += "\n|" + splitLine + "|\n";
+//    }
+//    return str;
+//  }
+//
+//
+//  public static void main(String[] args) {
+//    Board board = new Board(9);
+//    board.setField(Stone.BLACK, 0);
+//    board.setField(Stone.BLACK, 9);
+//    board.setField(Stone.WHITE, 1);
+//    board.setField(Stone.WHITE, 10);
+//    board.setField(Stone.WHITE, 18);
+//    board.captureGroups(Stone.WHITE);
+//    System.out.println(board.toString());
+//    Map<Stone, Integer> territoriesScores = board.determineTerritories();
+//    for (Stone stone : territoriesScores.keySet()) {
+//      int totalScore = territoriesScores.get(stone) + board.getStonesOnBoard(stone);
+//      if (stone == Stone.EMPTY) {
+//        System.out.println("The neutral area consist of: " + totalScore + " points.");
+//      } else {
+//        System.out.println(stone + " has a total of: " + totalScore + " points.");
+//      }
+//    }
+//  }
 
 }

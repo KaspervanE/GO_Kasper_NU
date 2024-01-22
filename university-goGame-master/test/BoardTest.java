@@ -2,12 +2,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Map;
 import main.com.nedap.go.board.Board;
 import main.com.nedap.go.board.Stone;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class BoardTest {
+
   private Board board;
 
   // setup
@@ -66,7 +68,7 @@ public class BoardTest {
       assertEquals(board.getField(i), deepCopyBoard.getField(i));
     }
 
-    // Check if a field in the deepcopied board the original remains the same
+    // Check if a field in the deep copied board the original remains the same
     deepCopyBoard.setField(Stone.BLACK, 5);
 
     assertEquals(Stone.EMPTY, board.getField(5));
@@ -76,6 +78,7 @@ public class BoardTest {
   @Test
   public void testIsEmptyFieldIndex() {
     board.setField(Stone.BLACK, 0);
+    assertFalse(board.isEmptyField(-1));
     assertFalse(board.isEmptyField(0));
     assertTrue(board.isEmptyField(1));
   }
@@ -133,8 +136,8 @@ public class BoardTest {
     board.setField(Stone.WHITE, 1, 3);
     board.setField(Stone.WHITE, 1, 1);
     board.captureGroups(Stone.BLACK);
-    assertEquals(Stone.EMPTY, board.getField(1,1));
-    assertEquals(Stone.EMPTY, board.getField(1,3));
+    assertEquals(Stone.EMPTY, board.getField(1, 1));
+    assertEquals(Stone.EMPTY, board.getField(1, 3));
   }
 
   @Test
@@ -152,8 +155,54 @@ public class BoardTest {
     assertEquals(Stone.EMPTY, board.getField(1, 2));
   }
 
-
   //-------------------------- Test Score related functions ------------------------
+
+  @Test
+  public void testScoresZeroStones() {
+    Map<Stone, Integer> territoriesScores = board.determineTerritories();
+    assertEquals(territoriesScores.get(Stone.BLACK),0);
+    assertEquals(territoriesScores.get(Stone.WHITE),0);
+    assertEquals(board.getStonesOnBoard(Stone.WHITE),0);
+    assertEquals(board.getStonesOnBoard(Stone.BLACK),0);
+  }
+
+  @Test
+  public void testScoresOneStone() {
+    board.setField(Stone.BLACK,0);
+    Map<Stone, Integer> territoriesScores = board.determineTerritories();
+    assertEquals(territoriesScores.get(Stone.BLACK),80);
+    assertEquals(territoriesScores.get(Stone.WHITE),0);
+    assertEquals(board.getStonesOnBoard(Stone.WHITE),0);
+    assertEquals(board.getStonesOnBoard(Stone.BLACK),1);
+  }
+
+  @Test
+  public void testScoresTwoStones() {
+    board.setField(Stone.BLACK,0);
+    board.setField(Stone.WHITE,1);
+    Map<Stone, Integer> territoriesScores = board.determineTerritories();
+    assertEquals(territoriesScores.get(Stone.BLACK),0);
+    assertEquals(territoriesScores.get(Stone.WHITE),0);
+    assertEquals(board.getStonesOnBoard(Stone.WHITE),1);
+    assertEquals(board.getStonesOnBoard(Stone.BLACK),1);
+    assertEquals(board.getStonesOnBoard(Stone.EMPTY),0);
+  }
+
+  @Test
+  public void testScoresStonesTerritory() {
+    board.setField(Stone.BLACK, 29);
+    board.setField(Stone.WHITE, 1);
+    board.setField(Stone.WHITE, 10);
+    board.setField(Stone.WHITE, 18);
+    board.captureGroups(Stone.WHITE);
+    assertEquals(Stone.EMPTY, board.getField(0));
+    assertEquals(Stone.EMPTY, board.getField(9));
+    Map<Stone, Integer> territoriesScores = board.determineTerritories();
+    assertEquals(territoriesScores.get(Stone.BLACK),0);
+    assertEquals(territoriesScores.get(Stone.WHITE),2);
+    assertEquals(board.getStonesOnBoard(Stone.WHITE),3);
+    assertEquals(board.getStonesOnBoard(Stone.BLACK),1);
+  }
 
 
 }
