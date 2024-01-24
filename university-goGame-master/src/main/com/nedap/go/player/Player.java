@@ -11,4 +11,6 @@ public interface Player {
   public Stone getStone();
 
   public void setStone(Stone stone);
+
+  public String getUsername();
 }

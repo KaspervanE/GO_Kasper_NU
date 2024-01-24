@@ -6,6 +6,7 @@ import java.util.Map;
 import main.com.nedap.go.board.Board;
 import main.com.nedap.go.board.Stone;
 import main.com.nedap.go.player.Player;
+import main.com.nedap.go.server.ClientHandler;
 
 public class GoGame implements Game {
 
@@ -25,10 +26,35 @@ public class GoGame implements Game {
     this.currentPlayer = this.playerOne;
   }
 
-
   @Override
   public Player getTurn() {
     return this.currentPlayer;
+  }
+
+  public int getBoardSize() {
+    return board.SIZE;
+  }
+
+  public Stone getMyStone(ClientHandler ch) {
+    if (this.playerOne.getUsername().equalsIgnoreCase(ch.getUsername())) {
+      return playerOne.getStone();
+    } else if (this.playerTwo.getUsername().equalsIgnoreCase(ch.getUsername())) {
+      return playerTwo.getStone();
+    } else {
+      return null;
+    }
+  }
+
+  public Board getBoard() {
+    return this.board;
+  }
+
+  public Player getPlayerOne() {
+    return playerOne;
+  }
+
+  public Player getPlayerTwo() {
+    return playerTwo;
   }
 
   @Override
@@ -50,6 +76,10 @@ public class GoGame implements Game {
 
   }
 
+  public String getWinnerWithStones(){
+    return this.getWinner().getUsername() + " (" + this.getWinner().getStone() + ") with a score of: " + this.getScore(this.getWinner().getStone());
+  }
+
   @Override
   public List<? extends Move> getValidMoves() {
     List<GoMove> moves = new ArrayList<GoMove>();
@@ -69,10 +99,12 @@ public class GoGame implements Game {
   }
 
   @Override
-  public void doMove(Move move) {
+  public boolean doMove(Move move) {
     if (isValidMove(move)) {
       this.board.setField(move.getStone(), move.getIndex());
+      return true;
     }
+    return false;
   }
 
   // update the board by capturing the groups, updating the previousPass and switching turns.

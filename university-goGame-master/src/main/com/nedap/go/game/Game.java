@@ -43,5 +43,5 @@ public interface Game {
    * Perform the move, assuming it is a valid move.
    * @param move the move to play
    */
-  void doMove(Move move);
+  boolean doMove(Move move);
 }
