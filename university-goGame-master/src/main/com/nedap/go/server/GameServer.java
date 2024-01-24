@@ -86,11 +86,47 @@ public class GameServer extends SocketServer {
     this.clientList.remove(client);
   }
 
-  public void removeGame(GoGame game){
+  public void removeGameByResign(GoGame game, String username) {
+    for (ClientHandler ch : clientList) {
+      if (ch.getUsername().equalsIgnoreCase(game.getPlayerOneUsername()) ||
+          ch.getUsername().equalsIgnoreCase(game.getPlayerTwoUsername())) {
+        ch.sendGameMessage(Protocol.GAME_OVER + Protocol.SEPARATOR + username + " could not take it anymore and resigned...");
+      }
+    }
+
+  }
+
+  public void removeGame(GoGame game) {
     for (GoGame listInGame : gamesList) {
-      if (listInGame.equals(game)){
+      if (listInGame.equals(game)) {
+        informClientsMessages(game, Protocol.GAME_OVER);
         gamesList.remove(game);
         return;
+      }
+    }
+  }
+
+  public void informClientsMessages(GoGame game, String protocolMsg) {
+    String[] split = protocolMsg.split(Protocol.SEPARATOR);
+    for (ClientHandler ch : clientList) {
+      if (ch.getUsername().equalsIgnoreCase(game.getPlayerOneUsername()) ||
+          ch.getUsername().equalsIgnoreCase(game.getPlayerTwoUsername())) {
+
+        switch (split[0]) {
+          case Protocol.GAME_OVER:
+            ch.sendGameMessage(
+                split[0] + Protocol.SEPARATOR + "The winner is: " + game.getWinnerWithStones());
+            break;
+          case Protocol.MAKE_MOVE:
+          case Protocol.PASS:
+            ch.sendGameMessage(split[0] + Protocol.SEPARATOR + game.getTurnAndStone());
+            break;
+          case Protocol.MOVE:
+            ch.sendGameMessage(split[0] + Protocol.SEPARATOR + split[1] + Protocol.SEPARATOR
+                + game.getTurnAndStone());
+            break;
+        }
+
       }
     }
   }

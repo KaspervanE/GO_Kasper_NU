@@ -31,6 +31,10 @@ public class GoGame implements Game {
     return this.currentPlayer;
   }
 
+  public String getTurnAndStone() {
+    return this.currentPlayer.getUsername() + " (" + this.currentPlayer.getStone() + ")";
+  }
+
   public int getBoardSize() {
     return board.SIZE;
   }
@@ -49,12 +53,12 @@ public class GoGame implements Game {
     return this.board;
   }
 
-  public Player getPlayerOne() {
-    return playerOne;
+  public String getPlayerOneUsername() {
+    return playerOne.getUsername();
   }
 
-  public Player getPlayerTwo() {
-    return playerTwo;
+  public String getPlayerTwoUsername() {
+    return playerTwo.getUsername();
   }
 
   @Override
@@ -77,7 +81,13 @@ public class GoGame implements Game {
   }
 
   public String getWinnerWithStones(){
-    return this.getWinner().getUsername() + " (" + this.getWinner().getStone() + ") with a score of: " + this.getScore(this.getWinner().getStone());
+    if (this.getWinner()!=null) {
+      return this.getWinner().getUsername() + " (" + this.getWinner().getStone()
+          + ") with a score of: " + this.getScore(this.getWinner().getStone());
+    } else {
+      return "no one, because it is a draw...";
+    }
+
   }
 
   @Override
