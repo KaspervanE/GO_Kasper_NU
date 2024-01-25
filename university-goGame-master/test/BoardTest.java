@@ -21,17 +21,17 @@ public class BoardTest {
   //-------------------------- Test general board functions ------------------------
 
   @Test
-  public void testIsFieldIndex() {
-    assertFalse(board.isValidField(-1));
-    assertTrue(board.isValidField(0));
-    assertTrue(board.isValidField(board.SIZE * board.SIZE - 1));
-    assertFalse(board.isValidField(board.SIZE * board.SIZE));
+  public void testIsFieldOnBoardAndEmptyIndex() {
+    assertFalse(board.isEmptyField(-1));
+    assertTrue(board.isEmptyField(0));
+    assertTrue(board.isEmptyField(board.SIZE * board.SIZE - 1));
+    assertFalse(board.isEmptyField(board.SIZE * board.SIZE));
   }
 
   @Test
   public void testIsFieldRowCol() {
-    assertFalse(board.isValidField(board.index(-1, 0)));
-    assertTrue(board.isValidField(board.index(0, 0)));
+    assertFalse(board.isEmptyField(board.index(-1, 0)));
+    assertTrue(board.isEmptyField(board.index(0, 0)));
   }
 
   @Test

@@ -10,6 +10,7 @@ import java.util.Set;
 
 public class Board {
 
+  private List<Board> previousBoards;
   public final int SIZE; // Size of the board
   private Stone[] fields; // Array for storing the stones on the board
 
@@ -17,6 +18,8 @@ public class Board {
   public Board(int size) {
     this.SIZE = size;
     this.fields = new Stone[SIZE * SIZE];
+    this.previousBoards = new ArrayList<>();
+    // fill board with 'empty' stones
     reset();
   }
 
@@ -29,7 +32,11 @@ public class Board {
     return newBoard;
   }
 
-  // Get field
+  public boolean isFormerBoard(Board board) {
+    return this.previousBoards.contains(board);
+  }
+
+  // Get field 1D/2D
   public Stone getField(int index) {
     return fields[index];
   }
@@ -53,14 +60,23 @@ public class Board {
   }
 
   // Function to check if the field is valid
-  public boolean isValidField(int ind) {
+  public boolean isFieldOnBoard(int ind) {
     return (ind >= 0 && ind < SIZE * SIZE);
   }
 
   // Function to check if the field is empty and valid (on the board)
   public boolean isEmptyField(int ind) {
-    if (this.isValidField(ind)) {
+    if (this.isFieldOnBoard(ind)) {
       return this.fields[ind].equals(Stone.EMPTY);
+    }
+    return false;
+  }
+
+  public boolean isValidField(Stone stone, int ind){
+    if (isEmptyField(ind)) {
+      Board possibleBoard = this.deepCopy();
+      possibleBoard.setField(stone, ind);
+      return !isFormerBoard(possibleBoard);
     }
     return false;
   }
@@ -367,6 +383,27 @@ public class Board {
       str += "\n|" + splitLine + "|\n";
     }
     return str;
+  }
+
+
+  @Override
+  public boolean equals(Object o) {
+    if (o == this) {
+      return true;
+    }
+
+    if (!(o instanceof Board)) {
+      return false;
+    }
+
+    Board board = (Board) o;
+
+    for (int i=0; i<SIZE*SIZE; i++) {
+      if (!this.fields[i].equals(board.fields[i])){
+        return false;
+      }
+    }
+    return true;
   }
 
 
