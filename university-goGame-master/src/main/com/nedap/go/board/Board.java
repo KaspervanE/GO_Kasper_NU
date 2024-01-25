@@ -53,10 +53,11 @@ public class Board {
   // Set field
   public void setField(Stone stone, int ind) {
     this.fields[ind] = stone;
+    this.previousBoards.add(deepCopy());
   }
 
   public void setField(Stone stone, int row, int col) {
-    this.fields[index(row, col)] = stone;
+    this.setField(stone,index(row, col));
   }
 
   // Function to check if the field is valid
@@ -404,27 +405,6 @@ public class Board {
       }
     }
     return true;
-  }
-
-
-  public static void main(String[] args) {
-    Board board = new Board(11);
-    board.setField(Stone.BLACK, 0);
-    board.setField(Stone.BLACK, 9);
-    board.setField(Stone.WHITE, 1);
-    board.setField(Stone.WHITE, 10);
-    board.setField(Stone.WHITE, 18);
-    board.captureGroups(Stone.WHITE);
-    System.out.println(board.toString());
-    Map<Stone, Integer> territoriesScores = board.determineTerritories();
-    for (Stone stone : territoriesScores.keySet()) {
-      int totalScore = territoriesScores.get(stone) + board.getStonesOnBoard(stone);
-      if (stone == Stone.EMPTY) {
-        System.out.println("The neutral area consist of: " + totalScore + " points.");
-      } else {
-        System.out.println(stone + " has a total of: " + totalScore + " points.");
-      }
-    }
   }
 
 }

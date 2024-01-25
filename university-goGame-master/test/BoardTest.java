@@ -42,6 +42,33 @@ public class BoardTest {
   }
 
   @Test
+  public void testIsValidField() {
+    board.setField(Stone.BLACK, 0);
+    assertFalse(board.isValidField(Stone.BLACK,board.index(-1, 0)));
+    assertFalse(board.isValidField(Stone.BLACK,board.index(0, 0)));
+    assertFalse(board.isValidField(Stone.WHITE,board.index(0, 0)));
+    assertTrue(board.isValidField(Stone.BLACK ,board.index(1, 0)));
+  }
+
+  @Test
+  public void testIsPreviousBoard() {
+    board.setField(Stone.BLACK, 0,1);
+    board.setField(Stone.BLACK, 1,0);
+    board.setField(Stone.BLACK, 1,2);
+    board.setField(Stone.BLACK, 2,1);
+    board.setField(Stone.WHITE, 1,1);
+    board.captureGroups(Stone.BLACK);
+    // When white is captured you get a previous board
+    assertTrue(board.isFormerBoard(board));
+    // Therefore white is not allowed to place a stone there
+    assertFalse(board.isValidField(Stone.WHITE, board.index(1,1)));
+    // Black is, since there is a new board position
+    assertTrue(board.isValidField(Stone.BLACK, board.index(1,1)));
+
+
+  }
+
+  @Test
   public void testSetup() {
     for (int i = 0; i < board.SIZE * board.SIZE; i++) {
       assertEquals(Stone.EMPTY, board.getField(i));
@@ -202,6 +229,35 @@ public class BoardTest {
     assertEquals(territoriesScores.get(Stone.WHITE),2);
     assertEquals(board.getStonesOnBoard(Stone.WHITE),3);
     assertEquals(board.getStonesOnBoard(Stone.BLACK),1);
+  }
+
+  @Test
+  public void testToString() {
+    board.setField(Stone.BLACK, 0, 1);
+    board.setField(Stone.BLACK, 1, 0);
+    board.setField(Stone.BLACK, 2, 1);
+    board.setField(Stone.BLACK, 1, 2);
+    board.setField(Stone.WHITE, 0, 2);
+    board.setField(Stone.WHITE, 1, 3);
+    board.setField(Stone.WHITE, 2, 2);
+    board.setField(Stone.WHITE, 1, 1);
+    assertTrue(board.toString().contains(String.valueOf(board.SIZE* board.SIZE-1)));
+    assertTrue(board.toString().contains(String.valueOf(0)));
+    assertTrue(board.toString().contains("+"));
+    assertTrue(board.toString().contains("-"));
+    assertTrue(board.toString().contains("|"));
+    assertTrue(board.toString().contains("○"));
+    assertTrue(board.toString().contains("●"));
+  }
+
+  @Test
+  // Can be tested by the equals method but this but emphasis on the equals method
+  public void testEquals() {
+    assertTrue(board.equals(board));
+    assertFalse(board.equals(Stone.BLACK));
+    assertTrue(board.equals(board.deepCopy()));
+    assertFalse(board.equals(null));
+
   }
 
 

@@ -94,7 +94,7 @@ public class GoGame implements Game {
   public List<? extends Move> getValidMoves() {
     List<GoMove> moves = new ArrayList<GoMove>();
     for (int i = 0; i < board.SIZE * board.SIZE; i++) {
-      if (board.isEmptyField(i)) {
+      if (board.isValidField(this.currentPlayer.getStone(), i)) {
         moves.add(new GoMove(i, this.currentPlayer.getStone()));
       }
     }
@@ -104,7 +104,7 @@ public class GoGame implements Game {
   // return true if field is empty and move is from current player
   @Override
   public boolean isValidMove(Move move) {
-    return this.board.isEmptyField(move.getIndex())
+    return this.board.isValidField(move.getStone(), move.getIndex())
         && move.getStone() == this.currentPlayer.getStone();
   }
 
