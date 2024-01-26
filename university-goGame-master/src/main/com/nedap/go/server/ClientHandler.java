@@ -12,7 +12,7 @@ public class ClientHandler {
   private String username;
   private final String TEMP_USER = "temp_user";
 
-  GoGame game;
+  private GoGame game;
 
   public ClientHandler(ServerConnection sc, GameServer server) {
     this.serverConnection = sc;
