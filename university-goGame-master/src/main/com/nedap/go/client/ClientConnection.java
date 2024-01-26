@@ -3,7 +3,9 @@ package main.com.nedap.go.client;
 
 import java.io.IOException;
 import java.net.Socket;
+import main.com.nedap.go.game.GoGame;
 import main.com.nedap.go.networking.SocketConnection;
+import main.com.nedap.go.player.GamePlayer;
 import main.com.nedap.go.protocol.Protocol;
 
 public class ClientConnection extends SocketConnection {
@@ -22,24 +24,53 @@ public class ClientConnection extends SocketConnection {
       split = msg.split(Protocol.SEPARATOR);
       switch (split[0]) {
         case Protocol.HELLO:
-          this.gameClient.receiveMessage(msg);
-          break;
-        case Protocol.ACCEPTED:
-          this.gameClient.receiveMessage(msg);
-          break;
-        case Protocol.REJECTED:
-          this.gameClient.receiveMessage(msg);
-          break;
         case Protocol.QUEUED:
           this.gameClient.receiveMessage(msg);
           break;
+        case Protocol.ACCEPTED:
+          this.gameClient.setUsername(split[1]);
+          this.gameClient.receiveMessage(msg);
+          break;
+        case Protocol.REJECTED:
+          this.gameClient.receiveMessage(msg + "~LOGIN with another username.");
+          break;
         case Protocol.GAME_STARTED:
+          String[] usernames = split[1].split(",");
+          int boardSize = Integer.parseInt(split[2]);
+          this.gameClient.startGame(
+              new GoGame(boardSize, new GamePlayer(usernames[0]), new GamePlayer(usernames[1])));
+          this.gameClient.receiveMessage(msg);
+          break;
+        case Protocol.MOVE:
+          if (isInteger(split[2])) {
+            this.gameClient.doMove(Integer.parseInt(split[1]), Integer.parseInt(split[2]));
+          } else {
+            this.gameClient.doMove(Integer.parseInt(split[1]));
+          }
+          this.gameClient.receiveMessage(msg);
+          break;
+        case Protocol.MAKE_MOVE:
+          //if (aiPlayer) {
+          if (false) {
+            //ai.determineMove()
+          } else {
+            //wait for input
+          }
           this.gameClient.receiveMessage(msg);
           break;
         default:
           this.gameClient.receiveMessage(msg);
           break;
       }
+    }
+  }
+
+  public static boolean isInteger(String str) {
+    try {
+      Integer.parseInt(str);
+      return true;
+    } catch (NumberFormatException e) {
+      return false;
     }
   }
 

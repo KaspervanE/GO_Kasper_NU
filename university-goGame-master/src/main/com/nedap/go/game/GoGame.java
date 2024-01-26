@@ -149,4 +149,11 @@ public class GoGame implements Game {
       this.currentPlayer = this.playerOne;
     }
   }
+
+  public String toString() {
+    String str = board.toString();
+    str += "\n" + playerOne.getUsername() + " (" + playerOne.getStone() + ") has a score of: " + getScore(playerOne.getStone());
+    str += "\n" + playerTwo.getUsername() + " (" + playerTwo.getStone() + ") has a score of: " + getScore(playerTwo.getStone());
+    return str;
+  }
 }
