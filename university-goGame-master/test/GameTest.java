@@ -7,6 +7,7 @@ import main.com.nedap.go.board.Stone;
 import main.com.nedap.go.game.Game;
 import main.com.nedap.go.game.GoGame;
 import main.com.nedap.go.game.GoMove;
+import main.com.nedap.go.game.Move;
 import main.com.nedap.go.player.GamePlayer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,16 +32,31 @@ public class GameTest {
 
   @Test
   public void testSwitchTurnAfterMove() {
-    game.doMove(new GoMove(1,Stone.BLACK));
+    game.doMove(new GoMove(1, Stone.BLACK));
     assertEquals(game.getTurn(), playerOne);
   }
 
   @Test
   public void testGetBoardSize() {
-    assertEquals(game.getBoardSize(),boardSize);
-
+    assertEquals(game.getBoardSize(), boardSize);
   }
 
+  @Test
+  public void testIsGameOver2passes() {
+    game.updateBoard(true);
+    assertFalse(game.isGameover());
+
+    game.doMove(new GoMove(1,Stone.BLACK));
+    game.updateBoard(false);
+    assertFalse(game.isGameover());
+
+    game.updateBoard(true);
+    assertFalse(game.isGameover());
+
+    game.updateBoard(true);
+    assertTrue(game.isGameover());
+
+  }
 
 
 }
