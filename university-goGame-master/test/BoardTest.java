@@ -113,7 +113,7 @@ public class BoardTest {
   @Test
   public void testSetFieldBothWays() {
     board.setField(Stone.BLACK, 0);
-    board.setField(Stone.WHITE, 0, 1);
+    board.setField(Stone.WHITE, 1, 0);
     assertEquals(Stone.BLACK, board.getField(0, 0));
     assertEquals(Stone.WHITE, board.getField(1));
   }

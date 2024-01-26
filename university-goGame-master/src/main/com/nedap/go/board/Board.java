@@ -41,12 +41,12 @@ public class Board {
     return fields[index];
   }
 
-  public Stone getField(int row, int col) {
-    return getField(index(row, col));
+  public Stone getField(int col, int row) {
+    return getField(index(col, row));
   }
 
   // Provide the index given the row and column
-  public int index(int row, int col) {
+  public int index(int col, int row) {
     return SIZE * row + col;
   }
 
@@ -56,8 +56,8 @@ public class Board {
     this.previousBoards.add(deepCopy());
   }
 
-  public void setField(Stone stone, int row, int col) {
-    this.setField(stone,index(row, col));
+  public void setField(Stone stone, int col, int row) {
+    this.setField(stone,index(col, row));
   }
 
   // Function to check if the field is valid
