@@ -14,34 +14,39 @@ public class ServerConnection extends SocketConnection {
 
   public void handleMessage(String msg) {
     String[] split;
-    if (!msg.isEmpty()) {
-      split = msg.split(Protocol.SEPARATOR);
-      switch (split[0].toUpperCase()) {
-        case Protocol.LOGIN:
-          this.clientHandler.receiveUsername(split[1]);
-          break;
-        case Protocol.QUEUE:
-          this.clientHandler.queuePlayer();
-          break;
-        case Protocol.MOVE:
-          if (split.length>1) {
-            if (split.length>2) {
-              this.clientHandler.do2DMove(Integer.parseInt(split[1]),Integer.parseInt(split[2]));
-            } else {
-              this.clientHandler.doMove(Integer.parseInt(split[1]));
+    try {
+      if (!msg.isEmpty()) {
+        split = msg.split(Protocol.SEPARATOR);
+        switch (split[0].toUpperCase()) {
+          case Protocol.LOGIN:
+            this.clientHandler.receiveUsername(split[1]);
+            break;
+          case Protocol.QUEUE:
+            this.clientHandler.queuePlayer();
+            break;
+          case Protocol.MOVE:
+            if (split.length>1) {
+              if (split.length>2) {
+                this.clientHandler.do2DMove(Integer.parseInt(split[1]),Integer.parseInt(split[2]));
+              } else {
+                this.clientHandler.doMove(Integer.parseInt(split[1]));
+              }
             }
-          }
-          break;
-        case Protocol.PASS:
-          this.clientHandler.doPass();
-          break;
-        case Protocol.RESIGN:
-          this.clientHandler.doResign();
-          break;
-        default:
-          break;
+            break;
+          case Protocol.PASS:
+            this.clientHandler.doPass();
+            break;
+          case Protocol.RESIGN:
+            this.clientHandler.doResign();
+            break;
+          default:
+            break;
+        }
       }
+    } catch (Exception e) {
+      sendGameMessage(Protocol.ERROR+Protocol.SEPARATOR+"Something went wrong, make sure to follow the protocol.");
     }
+
 
   }
 

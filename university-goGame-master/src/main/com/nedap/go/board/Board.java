@@ -60,26 +60,27 @@ public class Board {
     this.setField(stone,index(col, row));
   }
 
-  // Function to check if the field is valid
-  public boolean isFieldOnBoard(int ind) {
-    return (ind >= 0 && ind < SIZE * SIZE);
-  }
-
   // Function to check if the field is empty and valid (on the board)
   public boolean isEmptyField(int ind) {
-    if (this.isFieldOnBoard(ind)) {
+    if (ind < 0 || ind >= SIZE * SIZE) {
+      throw new IndexOutOfBoundsException();
+    } else {
       return this.fields[ind].equals(Stone.EMPTY);
     }
-    return false;
   }
 
   public boolean isValidField(Stone stone, int ind){
-    if (isEmptyField(ind)) {
-      Board possibleBoard = this.deepCopy();
-      possibleBoard.setField(stone, ind);
-      return !isFormerBoard(possibleBoard);
+    try {
+      if (isEmptyField(ind)) {
+        Board possibleBoard = this.deepCopy();
+        possibleBoard.setField(stone, ind);
+        return !isFormerBoard(possibleBoard);
+      }
+      return false;
+    } catch (IndexOutOfBoundsException e) {
+      return false;
     }
-    return false;
+
   }
 
   // Get the row given an index
@@ -406,5 +407,6 @@ public class Board {
     }
     return true;
   }
+
 
 }

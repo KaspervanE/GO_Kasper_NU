@@ -92,4 +92,14 @@ public class GameTest {
     game.updateBoard(false);
     assertNotEquals(game.getValidMoves().get(0).getIndex(), 0);
   }
+
+  @Test
+  public void testGetWinnerWithStone() {
+    assertTrue(game.getWinnerWithStones().contains("DRAW"));
+    game.doMove(new GoMove(0, Stone.BLACK));
+    game.updateBoard(false);
+    assertTrue(game.getWinnerWithStones().contains("Black"));
+  }
+
+
 }

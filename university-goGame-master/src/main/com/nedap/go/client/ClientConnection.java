@@ -3,6 +3,8 @@ package main.com.nedap.go.client;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import main.com.nedap.go.game.GoGame;
 import main.com.nedap.go.networking.SocketConnection;
 import main.com.nedap.go.player.GamePlayer;
@@ -10,6 +12,7 @@ import main.com.nedap.go.protocol.Protocol;
 
 public class ClientConnection extends SocketConnection {
 
+  private Lock lock = new ReentrantLock();
   private GameClient gameClient;
 
   protected ClientConnection(Socket socket, GameClient gameClient) throws IOException {
@@ -19,6 +22,7 @@ public class ClientConnection extends SocketConnection {
 
   @Override
   protected void handleMessage(String msg) {
+    lock.lock();
     String[] split;
     if (!msg.isEmpty()) {
       split = msg.split(Protocol.SEPARATOR);
@@ -48,14 +52,23 @@ public class ClientConnection extends SocketConnection {
             this.gameClient.doMove(Integer.parseInt(split[1]));
           }
           this.gameClient.receiveMessage(msg);
+          System.out.println("Move completed.");
           break;
         case Protocol.MAKE_MOVE:
-          //if (aiPlayer) {
-          if (false) {
-            //ai.determineMove()
+          if (split[1].split(" ")[0].equals(gameClient.getUsername())) {
+            if (this.gameClient.isPlayerAIOn()) {
+              this.gameClient.doAIMove();
+            } else {
+              this.gameClient.showBoard();
+              this.gameClient.receiveMessage("Make a move human: ");
+            }
           } else {
-            //wait for input
+            this.gameClient.receiveMessage(msg);
           }
+          break;
+
+        case Protocol.PASS:
+          this.gameClient.doPass();
           this.gameClient.receiveMessage(msg);
           break;
         default:
@@ -63,6 +76,7 @@ public class ClientConnection extends SocketConnection {
           break;
       }
     }
+    lock.unlock();
   }
 
   public static boolean isInteger(String str) {

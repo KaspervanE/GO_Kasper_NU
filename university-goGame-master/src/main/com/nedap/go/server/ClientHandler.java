@@ -43,6 +43,9 @@ public class ClientHandler {
   }
 
   public void handleDisconnect() {
+    if (game != null) {
+      doResign();
+    }
     System.out.println("Connection lost to client: " + this.username);
     server.removeClient(this);
   }
@@ -55,20 +58,26 @@ public class ClientHandler {
     if (!username.equals(TEMP_USER)) {
       this.server.addToQueue(this);
     } else {
-      this.serverConnection.sendGameMessage(Protocol.ERROR+Protocol.SEPARATOR+"You need to login before you can queue.");
+      this.serverConnection.sendGameMessage(
+          Protocol.ERROR + Protocol.SEPARATOR + "You need to login before you can queue.");
     }
   }
 
   public void doMove(int index) {
-    Stone stone = game.getMyStone(this);
-    // Do move and check if it is executed
-    if (game.doMove(new GoMove(index, stone))) {
-      this.server.informClientsMessages(game,Protocol.MOVE+Protocol.SEPARATOR+index);
-      game.updateBoard(false);
-      this.server.informClientsMessages(game,Protocol.MAKE_MOVE);
+    if (game.getTurn().getClientHandler().equals(this)) {
+      Stone stone = game.getMyStone(this);
+      // Do move and check if it is executed
+      if (game.doMove(new GoMove(index, stone))) {
+        this.server.informClientsMessages(game, Protocol.MOVE + Protocol.SEPARATOR + index);
+        game.updateBoard(false);
+        this.server.informClientsMessages(game, Protocol.MAKE_MOVE);
+      } else {
+        // invalid move, do nothing (according to protocol)
+      }
     } else {
-      // invalid move, do nothing (according to protocol)
+      // Not your turn
     }
+
   }
 
   // Transform 2D move into 1D, get game/board to get the board size.
@@ -78,16 +87,25 @@ public class ClientHandler {
   }
 
   public void doPass() {
-    game.updateBoard(true);
-    if (game.isGameover()) {
-      // Remove game from server and update Clients
-      server.removeGame(game);
+    if (game.getTurn().getClientHandler().equals(this)) {
+      this.server.informClientsMessages(game, Protocol.PASS);
+      game.updateBoard(true);
+      if (game.isGameover()) {
+        // Remove game from server and update Clients
+        server.removeGame(game);
+        game = null;
+      } else {
+        this.server.informClientsMessages(game, Protocol.MAKE_MOVE);
+      }
     }
   }
 
   public void doResign() {
-    game.endGame();
-    server.removeGameByResign(game, username);
+    if (game.getTurn().getClientHandler().equals(this)) {
+      game.endGame();
+      server.removeGameByResign(game, username);
+      game = null;
+    }
   }
 
 

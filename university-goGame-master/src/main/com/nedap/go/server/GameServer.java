@@ -18,7 +18,7 @@ public class GameServer extends SocketServer {
   private Queue<ClientHandler> gameQueue;
   private List<GoGame> gamesList;
   private List<ClientHandler> clientList;
-  private final int BOARDSIZE = 13;
+  private final int BOARDSIZE = 7;
 
   public GameServer(int port) throws IOException {
     super(port);
@@ -87,13 +87,18 @@ public class GameServer extends SocketServer {
   }
 
   public void removeGameByResign(GoGame game, String username) {
-    for (ClientHandler ch : clientList) {
-      if (ch.getUsername().equalsIgnoreCase(game.getPlayerOneUsername()) ||
-          ch.getUsername().equalsIgnoreCase(game.getPlayerTwoUsername())) {
-        ch.sendGameMessage(Protocol.GAME_OVER + Protocol.SEPARATOR + username + " could not take it anymore and resigned...");
-      }
+    String winner;
+    if (game.getPlayerOne().getUsername().equals(username)) {
+      winner = game.getPlayerTwo().getUsername();
+    } else {
+      winner = game.getPlayerOne().getUsername();
     }
-
+    game.getPlayerOne().getClientHandler().sendGameMessage(
+        Protocol.GAME_OVER + Protocol.SEPARATOR + "Winner " + winner + ", Because " + username
+            + " could not take it anymore and resigned...");
+    game.getPlayerTwo().getClientHandler().sendGameMessage(
+        Protocol.GAME_OVER + Protocol.SEPARATOR + "Winner " + winner + ", Because " + username
+            + " could not take it anymore and resigned...");
   }
 
   public void removeGame(GoGame game) {
@@ -109,15 +114,15 @@ public class GameServer extends SocketServer {
   public void informClientsMessages(GoGame game, String protocolMsg) {
     String[] split = protocolMsg.split(Protocol.SEPARATOR);
     for (ClientHandler ch : clientList) {
-      if (ch.getUsername().equalsIgnoreCase(game.getPlayerOneUsername()) ||
-          ch.getUsername().equalsIgnoreCase(game.getPlayerTwoUsername())) {
-
+      if (ch.equals(game.getPlayerOne().getClientHandler()) ||
+          ch.equals(game.getPlayerTwo().getClientHandler())) {
         switch (split[0]) {
           case Protocol.GAME_OVER:
             ch.sendGameMessage(
-                split[0] + Protocol.SEPARATOR + "The winner is: " + game.getWinnerWithStones());
+                split[0] + Protocol.SEPARATOR + game.getWinnerWithStones());
             break;
           case Protocol.MAKE_MOVE:
+            System.out.println(game.getBoard().toString());
           case Protocol.PASS:
             ch.sendGameMessage(split[0] + Protocol.SEPARATOR + game.getTurnAndStone());
             break;
@@ -142,8 +147,8 @@ public class GameServer extends SocketServer {
   }
 
   public void startGame(ClientHandler ch1, ClientHandler ch2) {
-    GoGame game = new GoGame(this.BOARDSIZE, new GamePlayer(ch1.getUsername()),
-        new GamePlayer(ch2.getUsername()));
+    GoGame game = new GoGame(this.BOARDSIZE, new GamePlayer(ch1.getUsername(), ch1),
+        new GamePlayer(ch2.getUsername(), ch2));
     this.gamesList.add(game);
     ch1.setGame(game);
     ch2.setGame(game);

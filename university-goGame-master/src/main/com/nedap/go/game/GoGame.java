@@ -3,21 +3,26 @@ package main.com.nedap.go.game;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import main.com.nedap.go.board.Board;
 import main.com.nedap.go.board.Stone;
+import main.com.nedap.go.player.GamePlayer;
 import main.com.nedap.go.player.Player;
 import main.com.nedap.go.server.ClientHandler;
 
 public class GoGame implements Game {
 
-  private Player playerOne;
-  private Player playerTwo;
-  private Player currentPlayer;
+  private GamePlayer playerOne;
+  private GamePlayer playerTwo;
+  private GamePlayer currentPlayer;
   private Board board;
   private boolean previousPass;
   private boolean gameOver;
 
-  public GoGame(int size, Player playerOne, Player playerTwo) {
+  private Lock lock = new ReentrantLock();
+
+  public GoGame(int size, GamePlayer playerOne, GamePlayer playerTwo) {
     this.playerOne = playerOne;
     this.playerTwo = playerTwo;
     this.board = new Board(size);
@@ -27,7 +32,7 @@ public class GoGame implements Game {
   }
 
   @Override
-  public Player getTurn() {
+  public GamePlayer getTurn() {
     return this.currentPlayer;
   }
 
@@ -53,12 +58,12 @@ public class GoGame implements Game {
     return this.board;
   }
 
-  public String getPlayerOneUsername() {
-    return playerOne.getUsername();
+  public GamePlayer getPlayerOne() {
+    return playerOne;
   }
 
-  public String getPlayerTwoUsername() {
-    return playerTwo.getUsername();
+  public GamePlayer getPlayerTwo() {
+    return playerTwo;
   }
 
   @Override
@@ -67,7 +72,7 @@ public class GoGame implements Game {
   }
 
   @Override
-  public Player getWinner() {
+  public GamePlayer getWinner() {
     int scoreBlack = getScore(Stone.BLACK);
     int scoreWhite = getScore(Stone.WHITE);
     if (scoreBlack > scoreWhite) {
@@ -80,18 +85,32 @@ public class GoGame implements Game {
 
   }
 
-  public String getWinnerWithStones(){
-    if (this.getWinner()!=null) {
-      return this.getWinner().getUsername() + " (" + this.getWinner().getStone()
-          + ") with a score of: " + this.getScore(this.getWinner().getStone());
+  public GamePlayer getLoser() {
+    int scoreBlack = getScore(Stone.BLACK);
+    int scoreWhite = getScore(Stone.WHITE);
+    if (scoreBlack > scoreWhite) {
+      return this.playerTwo;
+    } else if (scoreWhite > scoreBlack) {
+      return this.playerOne;
     } else {
-      return "no one, because it is a draw...";
+      return null;
+    }
+
+  }
+
+  public String getWinnerWithStones() {
+    if (this.getWinner() != null) {
+      return "Winner " + this.getWinner().getUsername() + " (" + this.getWinner().getStone()
+          + ") with a score of: " + this.getScore(this.getWinner().getStone()) + " versus: "
+          + this.getScore(this.getLoser().getStone());
+    } else {
+      return "DRAW";
     }
 
   }
 
   @Override
-  public List<? extends Move> getValidMoves() {
+  public List<GoMove> getValidMoves() {
     List<GoMove> moves = new ArrayList<GoMove>();
     for (int i = 0; i < board.SIZE * board.SIZE; i++) {
       if (board.isValidField(this.currentPlayer.getStone(), i)) {
@@ -110,18 +129,24 @@ public class GoGame implements Game {
 
   @Override
   public boolean doMove(Move move) {
+    lock.lock();
     if (isValidMove(move)) {
       this.board.setField(move.getStone(), move.getIndex());
+      lock.unlock();
       return true;
     }
+    lock.unlock();
     return false;
+
   }
 
   // update the board by capturing the groups, updating the previousPass and switching turns.
   public void updateBoard(boolean playerPassed) {
+    lock.lock();
     if (playerPassed) {
       if (this.previousPass) {
         endGame();
+        lock.unlock();
         return;
       } else {
         this.previousPass = true;
@@ -131,6 +156,7 @@ public class GoGame implements Game {
       this.previousPass = false;
     }
     switchTurns();
+    lock.unlock();
   }
 
   // method to end the game when two consecutive passes have been played
@@ -150,10 +176,16 @@ public class GoGame implements Game {
     }
   }
 
+  public boolean isPreviousPass() {
+    return this.previousPass;
+  }
+
   public String toString() {
     String str = board.toString();
-    str += "\n" + playerOne.getUsername() + " (" + playerOne.getStone() + ") has a score of: " + getScore(playerOne.getStone());
-    str += "\n" + playerTwo.getUsername() + " (" + playerTwo.getStone() + ") has a score of: " + getScore(playerTwo.getStone());
+    str += "\n" + playerOne.getUsername() + " (" + playerOne.getStone() + ") has a score of: "
+        + getScore(playerOne.getStone());
+    str += "\n" + playerTwo.getUsername() + " (" + playerTwo.getStone() + ") has a score of: "
+        + getScore(playerTwo.getStone());
     return str;
   }
 }
