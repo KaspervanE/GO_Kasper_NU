@@ -52,7 +52,6 @@ public class ClientConnection extends SocketConnection {
             this.gameClient.doMove(Integer.parseInt(split[1]));
           }
           this.gameClient.receiveMessage(msg);
-          System.out.println("Move completed.");
           break;
         case Protocol.MAKE_MOVE:
           if (split[1].split(" ")[0].equals(gameClient.getUsername())) {

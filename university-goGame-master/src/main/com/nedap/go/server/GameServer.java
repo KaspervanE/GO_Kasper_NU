@@ -18,7 +18,7 @@ public class GameServer extends SocketServer {
   private Queue<ClientHandler> gameQueue;
   private List<GoGame> gamesList;
   private List<ClientHandler> clientList;
-  private final int BOARDSIZE = 7;
+  private final int BOARDSIZE = 13;
 
   public GameServer(int port) throws IOException {
     super(port);

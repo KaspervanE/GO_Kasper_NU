@@ -15,13 +15,21 @@ public class AIstrategy {
     String responseString = ChatGPTAPIClient.chatGPT(msgString);
     // DEBUGGING: System.out.println("First search result: " + responseString);
     // Check if the answer can be parsed to an integer.
-    try {
-      Integer.parseInt(responseString);
-    } catch (Exception e) { // Sometimes ChatGPT answers with a sentence rather than a number.
-      // Try one more time to get only an integer back.
-      responseString = ChatGPTAPIClient.chatGPT(msgString + " Only the number!");
+    boolean exitLoop = false;
+    int counter = 0;
+    while (!exitLoop && counter < 5) {
+      try {
+        Integer.parseInt(responseString);
+        exitLoop = true;
+      } catch (Exception e) { // Sometimes ChatGPT answers with a sentence rather than a number.
+        counter++;
+        // Try one more time to get only an integer back.
+        responseString = ChatGPTAPIClient.chatGPT(
+            msgString + " Only the number! (index that is suggested)");
+        // DEBUGGING: System.out.println("Second search result: " + responseString);
+      }
     }
-    // DEBUGGING: System.out.println("Second search result: " + responseString);
+
     return interpretResponse(responseString, validMoves);
   }
 
