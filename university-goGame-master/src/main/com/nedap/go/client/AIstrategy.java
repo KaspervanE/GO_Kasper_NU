@@ -24,7 +24,6 @@ public class AIstrategy {
       } catch (Exception e) { // Sometimes ChatGPT answers with a sentence rather than a number.
         counter++;
         if (getIntFromString(responseString)!=null) {
-          System.out.println(responseString);
           responseString=getIntFromString(responseString);
           break;
         }
@@ -92,8 +91,7 @@ public class AIstrategy {
             + "and white has its stones at indexes: " + getIndexesStones(board,
             Stone.WHITE) + ". "
             + "Where would the best place be for " + nameStone(currentStone)
-            + " to play the stone if you would believe AlphaGo Zero. "
-            + "It is okay if you need to take a second to think, i prefer a close estimate over no answer at all. "
+            + "The goal is to create larger chains to get a big territory, rather than group the stones."
             + "If a pass would be the best option, answer with -1."
             + "The only indexes allowed are: " + getValidIndexes(validMoves) + " and -1 ."
             + "Provide your answer with only one number (the index). Only one number!";
