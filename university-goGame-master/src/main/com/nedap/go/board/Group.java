@@ -18,4 +18,5 @@ public class Group {
   public Stone getStone() {
     return stone;
   }
+
 }

@@ -89,7 +89,9 @@ public class GameClient {
             break;
           case "AION":
             this.setAIplayer(true);
-            this.receiveMessage("I have to do a move, if its is my turn! \n\n\n\n Implement \n\n");
+            if (this.currentStone == game.getTurn().getStone()){
+              doAIMove();
+            }
             this.receiveMessage("AI player is activated.");
             break;
           case "AIOFF":

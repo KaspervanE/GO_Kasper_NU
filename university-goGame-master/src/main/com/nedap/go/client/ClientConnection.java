@@ -51,6 +51,7 @@ public class ClientConnection extends SocketConnection {
           this.gameClient.receiveMessage(msg);
           break;
         case Protocol.MAKE_MOVE:
+          this.gameClient.receiveMessage(msg);
           if (this.gameClient.isPlayerAIOn()) {
             this.gameClient.doAIMove();
           } else {
@@ -58,7 +59,6 @@ public class ClientConnection extends SocketConnection {
             this.gameClient.receiveMessage("Make a move human: ");
           }
           break;
-
         case Protocol.PASS:
           this.gameClient.doPass();
           this.gameClient.receiveMessage(msg);

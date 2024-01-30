@@ -10,7 +10,7 @@ public class ClientHandler {
   private ServerConnection serverConnection;
   private GameServer server;
   private String username;
-  private final String TEMP_USER = "temp_user";
+  private final String TEMP_USER = "new_user";
 
   private GoGame game;
 
@@ -38,10 +38,6 @@ public class ClientHandler {
     this.game = game;
   }
 
-  public void receiveChatMessage(String msg) {
-    this.server.handleChatMessage(this, msg);
-  }
-
   public void handleDisconnect() {
     if (game != null) {
       doResign();
@@ -51,6 +47,7 @@ public class ClientHandler {
   }
 
   public void sendGameMessage(String msg) {
+    System.out.println("TO "+ this.username+ ": " + msg);
     this.serverConnection.sendGameMessage(msg);
   }
 

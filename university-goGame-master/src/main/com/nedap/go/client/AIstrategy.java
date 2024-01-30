@@ -23,6 +23,11 @@ public class AIstrategy {
         exitLoop = true;
       } catch (Exception e) { // Sometimes ChatGPT answers with a sentence rather than a number.
         counter++;
+        if (getIntFromString(responseString)!=null) {
+          System.out.println(responseString);
+          responseString=getIntFromString(responseString);
+          break;
+        }
         // Try one more time to get only an integer back.
         responseString = ChatGPTAPIClient.chatGPT(
             msgString + " Only the number! (index that is suggested)");
@@ -35,7 +40,6 @@ public class AIstrategy {
 
   private static int interpretResponse(String responseString, List<GoMove> validMoves) {
     int response;
-    Random rand = new Random();
     try {
       response = Integer.parseInt(responseString);
       System.out.println("AI++ " + response);
@@ -43,15 +47,29 @@ public class AIstrategy {
         return response;
       }
       if (!isResponseInList(response, validMoves)) {
-        int newResponse = validMoves.get(rand.nextInt(validMoves.size())).getIndex();
+        int newResponse = validMoves.get(validMoves.size()/2).getIndex();
         System.out.println("NotValid++ " + response);
         return newResponse;
       }
     } catch (Exception e) {
-      response = validMoves.get(rand.nextInt(validMoves.size())).getIndex();
+      response = validMoves.get(validMoves.size()/2).getIndex();
       System.out.println("Random++ " + e);
     }
     return response;
+  }
+
+  public static String getIntFromString(String input) {
+    String[] inputArray = input.split("[ .,]");
+    for (String text : inputArray){
+      try {
+        Integer.parseInt(text);
+        return text;
+      } catch (NumberFormatException e) {
+        // Continue loop
+      }
+    }
+    return null;
+
   }
 
   public static boolean isResponseInList(int response, List<GoMove> validMoves) {

@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Scanner;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import main.com.nedap.go.game.GoGame;
 import main.com.nedap.go.networking.SocketServer;
 import main.com.nedap.go.player.GamePlayer;
@@ -19,6 +21,8 @@ public class GameServer extends SocketServer {
   private List<GoGame> gamesList;
   private List<ClientHandler> clientList;
   private final int BOARDSIZE = 9;
+
+  private Lock lock = new ReentrantLock();
 
   public GameServer(int port) throws IOException {
     super(port);
@@ -123,7 +127,7 @@ public class GameServer extends SocketServer {
             break;
           case Protocol.MAKE_MOVE:
             if (ch.equals(game.getTurn().getClientHandler())) {
-              System.out.println(game.getBoard().toString());
+              ch.sendGameMessage(Protocol.MAKE_MOVE);
             }
             break;
           case Protocol.PASS:
@@ -140,11 +144,18 @@ public class GameServer extends SocketServer {
   }
 
   // Add client handler/player to the queue, if more than 1 player is in the queue, start game
-  public synchronized void addToQueue(ClientHandler ch) {
+  public void addToQueue(ClientHandler ch) {
+    lock.lock();
+    if (clientHandlerIsInGame(ch)) {
+      ch.sendGameMessage("You cant queue when you are in a game.");
+      lock.unlock();
+      return;
+    }
     // If client is already in the queue, remove from queue
     if (ch.equals(this.gameQueue.peek())) {
       this.gameQueue.remove();
       ch.sendGameMessage("You are removed from the queue, to queue again type: QUEUE");
+      lock.unlock();
       return;
     }
     this.gameQueue.offer(ch);
@@ -153,6 +164,16 @@ public class GameServer extends SocketServer {
     } else {
       ch.sendGameMessage(Protocol.QUEUED);
     }
+    lock.unlock();
+  }
+
+  private boolean clientHandlerIsInGame(ClientHandler ch) {
+    for (GoGame game : gamesList) {
+      if (ch.equals(game.getPlayerOne().getClientHandler()) || ch.equals(game.getPlayerTwo().getClientHandler())){
+        return true;
+      }
+    }
+    return false;
   }
 
   public void startGame(ClientHandler ch1, ClientHandler ch2) {

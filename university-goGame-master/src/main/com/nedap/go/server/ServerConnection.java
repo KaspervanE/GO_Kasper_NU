@@ -13,6 +13,7 @@ public class ServerConnection extends SocketConnection {
   }
 
   public void handleMessage(String msg) {
+    System.out.println("FROM "+ this.clientHandler.getUsername()+ ": " + msg);
     String[] split;
     try {
       if (!msg.isEmpty()) {
