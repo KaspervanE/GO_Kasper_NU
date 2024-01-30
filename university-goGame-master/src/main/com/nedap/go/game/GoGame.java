@@ -44,14 +44,18 @@ public class GoGame implements Game {
     return board.SIZE;
   }
 
-  public Stone getMyStone(ClientHandler ch) {
-    if (this.playerOne.getUsername().equalsIgnoreCase(ch.getUsername())) {
+  public Stone getMyStone(String username) {
+    if (this.playerOne.getUsername().equalsIgnoreCase(username)) {
       return playerOne.getStone();
-    } else if (this.playerTwo.getUsername().equalsIgnoreCase(ch.getUsername())) {
+    } else if (this.playerTwo.getUsername().equalsIgnoreCase(username)) {
       return playerTwo.getStone();
     } else {
       return null;
     }
+  }
+
+  public Stone getCurrentStone() {
+    return getMyStone(getTurn().getUsername());
   }
 
   public Board getBoard() {

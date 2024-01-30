@@ -18,7 +18,7 @@ public class GameServer extends SocketServer {
   private Queue<ClientHandler> gameQueue;
   private List<GoGame> gamesList;
   private List<ClientHandler> clientList;
-  private final int BOARDSIZE = 13;
+  private final int BOARDSIZE = 9;
 
   public GameServer(int port) throws IOException {
     super(port);
@@ -122,13 +122,16 @@ public class GameServer extends SocketServer {
                 split[0] + Protocol.SEPARATOR + game.getWinnerWithStones());
             break;
           case Protocol.MAKE_MOVE:
-            System.out.println(game.getBoard().toString());
+            if (ch.equals(game.getTurn().getClientHandler())) {
+              System.out.println(game.getBoard().toString());
+            }
+            break;
           case Protocol.PASS:
-            ch.sendGameMessage(split[0] + Protocol.SEPARATOR + game.getTurnAndStone());
+            ch.sendGameMessage(split[0] + Protocol.SEPARATOR + game.getCurrentStone().getName());
             break;
           case Protocol.MOVE:
             ch.sendGameMessage(split[0] + Protocol.SEPARATOR + split[1] + Protocol.SEPARATOR
-                + game.getTurnAndStone());
+                + game.getCurrentStone().getName());
             break;
         }
 
@@ -138,6 +141,12 @@ public class GameServer extends SocketServer {
 
   // Add client handler/player to the queue, if more than 1 player is in the queue, start game
   public synchronized void addToQueue(ClientHandler ch) {
+    // If client is already in the queue, remove from queue
+    if (ch.equals(this.gameQueue.peek())) {
+      this.gameQueue.remove();
+      ch.sendGameMessage("You are removed from the queue, to queue again type: QUEUE");
+      return;
+    }
     this.gameQueue.offer(ch);
     if (this.gameQueue.size() > 1) {
       startGame(this.gameQueue.poll(), this.gameQueue.poll());

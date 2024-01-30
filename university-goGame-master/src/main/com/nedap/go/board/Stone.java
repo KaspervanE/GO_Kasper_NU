@@ -17,6 +17,15 @@ public enum Stone {
     return this.fullName;
   }
 
+  public static Stone retrieveByName(String name) {
+    if (Stone.BLACK.getName().equals(name)) {
+      return Stone.BLACK;
+    } else if (Stone.WHITE.getName().equals(name)) {
+      return Stone.WHITE;
+    } else {
+      return null;
+    }
+  }
 
   @Override
   public String toString() {

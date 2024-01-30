@@ -15,6 +15,7 @@ public class GameClient {
   private ClientConnection clientConnection;
 
   private String username;
+  private Stone currentStone;
   private GoGame game;
   private boolean playerAIOn;
 
@@ -45,14 +46,10 @@ public class GameClient {
     System.out.println(msg);
   }
 
-  public void doMove(int ind1) {
-    GoMove move = new GoMove(ind1, game.getTurn().getStone());
+  public void doMove(int ind1,Stone stone) {
+    GoMove move = new GoMove(ind1, stone);
     this.game.doMove(move);
     this.game.updateBoard(false);
-  }
-
-  public void doMove(int col, int row) {
-    doMove(game.getBoard().index(col, row));
   }
 
   public void pass() {
@@ -117,6 +114,7 @@ public class GameClient {
 
   public void startGame(GoGame game) {
     this.game = game;
+    this.currentStone = game.getMyStone(this.username);
   }
 
   public void handleDisconnect() {
@@ -139,12 +137,8 @@ public class GameClient {
     return playerAIOn;
   }
 
-  public Stone getThisStoneClient() {
-    if (this.game.getPlayerOne().getUsername().equals(this.username)) {
-      return game.getPlayerOne().getStone();
-    } else {
-      return game.getPlayerTwo().getStone();
-    }
+  public Stone getStone() {
+    return this.currentStone;
   }
 
   public boolean clientIsWinning() {
@@ -160,16 +154,14 @@ public class GameClient {
     if (validMoves.isEmpty()) {
       sendGameMessage(Protocol.PASS);
     } else {
-      int moveIndex = AIstrategy.determineBestIndex(this.game.getBoard(), getThisStoneClient(),
+      int moveIndex = AIstrategy.determineBestIndex(this.game.getBoard(), getStone(),
           validMoves);
       if (moveIndex==-1) {
         sendGameMessage(Protocol.PASS);
       } else {
         sendGameMessage(Protocol.MOVE + Protocol.SEPARATOR + moveIndex);
       }
-
     }
-
   }
 
   public void doPass() {

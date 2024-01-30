@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import main.com.nedap.go.board.Stone;
 import main.com.nedap.go.game.GoGame;
 import main.com.nedap.go.networking.SocketConnection;
 import main.com.nedap.go.player.GamePlayer;
@@ -46,23 +47,15 @@ public class ClientConnection extends SocketConnection {
           this.gameClient.receiveMessage(msg);
           break;
         case Protocol.MOVE:
-          if (isInteger(split[2])) {
-            this.gameClient.doMove(Integer.parseInt(split[1]), Integer.parseInt(split[2]));
-          } else {
-            this.gameClient.doMove(Integer.parseInt(split[1]));
-          }
+          this.gameClient.doMove(Integer.parseInt(split[1]), Stone.retrieveByName(split[2]));
           this.gameClient.receiveMessage(msg);
           break;
         case Protocol.MAKE_MOVE:
-          if (split[1].split(" ")[0].equals(gameClient.getUsername())) {
-            if (this.gameClient.isPlayerAIOn()) {
-              this.gameClient.doAIMove();
-            } else {
-              this.gameClient.showBoard();
-              this.gameClient.receiveMessage("Make a move human: ");
-            }
+          if (this.gameClient.isPlayerAIOn()) {
+            this.gameClient.doAIMove();
           } else {
-            this.gameClient.receiveMessage(msg);
+            this.gameClient.showBoard();
+            this.gameClient.receiveMessage("Make a move human: ");
           }
           break;
 

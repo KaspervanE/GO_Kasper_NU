@@ -65,17 +65,18 @@ public class ClientHandler {
 
   public void doMove(int index) {
     if (game.getTurn().getClientHandler().equals(this)) {
-      Stone stone = game.getMyStone(this);
+      Stone stone = game.getMyStone(this.username);
       // Do move and check if it is executed
       if (game.doMove(new GoMove(index, stone))) {
         this.server.informClientsMessages(game, Protocol.MOVE + Protocol.SEPARATOR + index);
         game.updateBoard(false);
         this.server.informClientsMessages(game, Protocol.MAKE_MOVE);
       } else {
-        // invalid move, do nothing (according to protocol)
+        sendGameMessage(Protocol.ERROR+Protocol.SEPARATOR+"Invalid move");
+        this.server.informClientsMessages(game, Protocol.MAKE_MOVE);
       }
     } else {
-      // Not your turn
+      sendGameMessage(Protocol.ERROR+Protocol.SEPARATOR+"Not your turn");
     }
 
   }
