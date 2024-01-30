@@ -20,7 +20,7 @@ public class GameServer extends SocketServer {
   private Queue<ClientHandler> gameQueue;
   private List<GoGame> gamesList;
   private List<ClientHandler> clientList;
-  private final int BOARDSIZE = 9;
+  private int boardSize;
 
   private Lock lock = new ReentrantLock();
 
@@ -30,6 +30,7 @@ public class GameServer extends SocketServer {
     this.clientList = new ArrayList<>();
     this.gameQueue = new LinkedBlockingQueue<>();
     this.gamesList = new ArrayList<>();
+    this.boardSize= 13;
   }
 
   /**
@@ -38,6 +39,10 @@ public class GameServer extends SocketServer {
   @Override
   public int getPort() {
     return super.getPort();
+  }
+
+  public void setBoardSize(int boardSize) {
+    this.boardSize = boardSize;
   }
 
   public List<GoGame> getGamesList() {
@@ -170,7 +175,8 @@ public class GameServer extends SocketServer {
 
   private boolean clientHandlerIsInGame(ClientHandler ch) {
     for (GoGame game : gamesList) {
-      if (ch.equals(game.getPlayerOne().getClientHandler()) || ch.equals(game.getPlayerTwo().getClientHandler())){
+      if (ch.equals(game.getPlayerOne().getClientHandler()) || ch.equals(
+          game.getPlayerTwo().getClientHandler())) {
         return true;
       }
     }
@@ -178,7 +184,7 @@ public class GameServer extends SocketServer {
   }
 
   public void startGame(ClientHandler ch1, ClientHandler ch2) {
-    GoGame game = new GoGame(this.BOARDSIZE, new GamePlayer(ch1.getUsername(), ch1),
+    GoGame game = new GoGame(this.boardSize, new GamePlayer(ch1.getUsername(), ch1),
         new GamePlayer(ch2.getUsername(), ch2));
     this.gamesList.add(game);
     ch1.setGame(game);
@@ -212,22 +218,80 @@ public class GameServer extends SocketServer {
     return true;
   }
 
-  public static void main(String[] args) {
-    Scanner input = new Scanner(System.in);
-    try {
-      System.out.println("Enter port: ");
-      int port = input.nextInt();
-      GameServer server = new GameServer(port);
-      new Thread(() -> {
-        try {
-          server.acceptConnections();
-        } catch (IOException e) {
-          throw new RuntimeException(e);
-        }
-      }).start();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
+  public void run() {
+    Scanner sc = new Scanner(System.in);
+    while (true) {
+      //System.out.println("Provide input:");
+      this.readMessage(sc);
     }
+  }
+
+  private void readMessage(Scanner sc) {
+    String input = sc.nextLine();
+    this.handleInput(input);
+  }
+
+  public void handleInput(String input) {
+    String[] split;
+    try {
+      if (!input.isEmpty()) {
+        split = input.split(Protocol.SEPARATOR);
+        switch (split[0].toUpperCase()) {
+          case "SIZE":
+            int size = Integer.parseInt(split[1]);
+            if (size>3 && size < 25) {
+              this.setBoardSize(Integer.parseInt(split[1]));
+              System.out.println("Board size is set to: "+ size);
+            } else {
+              System.out.println(size+" is not a valid board size 4~25");
+            }
+            break;
+          case "QUEUE":
+            System.out.println("QUEUE: ");
+            for(ClientHandler ch : gameQueue) {
+              System.out.println("   - " +ch.getUsername());
+            }
+            break;
+          case "GAMES":
+            System.out.println("Current games: ");
+            int counter = 0;
+            for(GoGame game : gamesList) {
+              System.out.println("   - " +counter+ ": "+game.getPlayerOne().getUsername() + " vs " + game.getPlayerTwo().getUsername());
+              counter++;
+            }
+            break;
+          case "BOARD":
+            System.out.println(gamesList.get(Integer.parseInt(split[1])).toString());
+            break;
+        }
+      }
+    } catch (Exception e) {
+      System.out.println("Unknown command");
+    }
+  }
+
+  public static void main(String[] args) {
+    GameServer server;
+    while (true) {
+      try {
+        Scanner input = new Scanner(System.in);
+        System.out.println("Enter port: ");
+        int port = input.nextInt();
+        server = new GameServer(port);
+        break;
+      } catch (Exception e) {
+        System.out.println("Cannot connect on this port");
+      }
+    }
+    GameServer finalServer = server;
+    new Thread(() -> {
+      try {
+        finalServer.acceptConnections();
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    }).start();
+    server.run();
   }
 
 }
