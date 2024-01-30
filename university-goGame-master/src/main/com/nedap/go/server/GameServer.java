@@ -103,6 +103,7 @@ public class GameServer extends SocketServer {
     game.getPlayerTwo().getClientHandler().sendGameMessage(
         Protocol.GAME_OVER + Protocol.SEPARATOR + "Winner " + winner + ", Because " + username
             + " could not take it anymore and resigned...");
+    gamesList.remove(game);
   }
 
   public void removeGame(GoGame game) {

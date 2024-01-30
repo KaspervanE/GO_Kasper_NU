@@ -43,7 +43,7 @@ public class ClientConnection extends SocketConnection {
           String[] usernames = split[1].split(",");
           int boardSize = Integer.parseInt(split[2]);
           this.gameClient.startGame(
-              new GoGame(boardSize, new GamePlayer(usernames[0]), new GamePlayer(usernames[1])));
+              new GoGame(boardSize, new GamePlayer(usernames[0]), new GamePlayer(usernames[1]),false));
           this.gameClient.receiveMessage(msg);
           break;
         case Protocol.MOVE:

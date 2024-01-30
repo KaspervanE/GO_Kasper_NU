@@ -3,6 +3,8 @@ package main.com.nedap.go.game;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import main.com.nedap.go.board.Board;
@@ -10,6 +12,7 @@ import main.com.nedap.go.board.Stone;
 import main.com.nedap.go.player.GamePlayer;
 import main.com.nedap.go.player.Player;
 import main.com.nedap.go.server.ClientHandler;
+import java.time.Instant;
 
 public class GoGame implements Game {
 
@@ -20,20 +23,49 @@ public class GoGame implements Game {
   private boolean previousPass;
   private boolean gameOver;
 
+  private boolean useTimer;
+  private Timer timer;
   private Lock lock = new ReentrantLock();
 
   public GoGame(int size, GamePlayer playerOne, GamePlayer playerTwo) {
+    this(size, playerOne, playerTwo,true);
+  }
+
+  public GoGame(int size, GamePlayer playerOne, GamePlayer playerTwo, boolean useTimer) {
     this.playerOne = playerOne;
     this.playerTwo = playerTwo;
     this.board = new Board(size);
     this.playerOne.setStone(Stone.BLACK);
     this.playerTwo.setStone(Stone.WHITE);
     this.currentPlayer = this.playerOne;
+    this.useTimer = useTimer;
+    setTimer();
   }
+
 
   @Override
   public GamePlayer getTurn() {
     return this.currentPlayer;
+  }
+
+  public void setTimer() {
+    GoGame currentGameObject = this;
+    timer = new Timer();
+    timer.schedule(new TimerTask() {
+      @Override
+      public void run() {
+        try {
+          currentGameObject.getTurn().getClientHandler().doResign();
+        } catch (NullPointerException e) {
+          // Game has already been removed
+        }
+
+      }
+    }, 60000); // 1 minute
+  }
+
+  public void cancelTimer() {
+    timer.cancel();
   }
 
   public String getTurnAndStone() {
@@ -134,6 +166,9 @@ public class GoGame implements Game {
   @Override
   public boolean doMove(Move move) {
     lock.lock();
+    if (this.useTimer) {
+      setTimer();
+    }
     if (isValidMove(move)) {
       this.board.setField(move.getStone(), move.getIndex());
       lock.unlock();
@@ -165,6 +200,9 @@ public class GoGame implements Game {
 
   // method to end the game when two consecutive passes have been played
   public void endGame() {
+    if (this.useTimer) {
+      cancelTimer();
+    }
     this.gameOver = true;
   }
 
