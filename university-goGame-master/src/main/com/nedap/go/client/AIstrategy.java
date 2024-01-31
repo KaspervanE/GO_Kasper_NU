@@ -24,6 +24,7 @@ public class AIstrategy {
       } catch (Exception e) { // Sometimes ChatGPT answers with a sentence rather than a number.
         counter++;
         if (getIntFromString(responseString)!=null) {
+          System.out.println(responseString + " retrieved from long string.");
           responseString=getIntFromString(responseString);
           break;
         }
@@ -80,24 +81,44 @@ public class AIstrategy {
     return false;
   }
 
+//   Instruct to do best move, by spreading out and capturing
   public static String createMessage(Board board, Stone currentStone, List<GoMove> validMoves) {
     String msgString =
         "In the game GO a " + board.SIZE + " by " + board.SIZE + " board is given. "
             + "The index of the top left is 0 and top right is " + new String(
             String.valueOf(board.SIZE - 1)) + ". "
-            + "The Chinees rules are applied and suicide moves are allowed, we are only interested in the territory and the stones on the board, captures are NOT counted. "
             + "When Black has its stones at the following indexes: " + getIndexesStones(board,
             Stone.BLACK) + ". "
             + "and white has its stones at indexes: " + getIndexesStones(board,
             Stone.WHITE) + ". "
             + "Where would the best place be for " + nameStone(currentStone)
-            + "The goal is to create larger chains to get a big territory, rather than group the stones."
+            + "The goal is to create cross over the entire board to get a big territory, I do NOT want to group the stones."
+            + "Your suggestions are grouping my stones too much, start from the middle and spread them out more to the corners. And try to capture stones."
             + "If a pass would be the best option, answer with -1."
             + "The only indexes allowed are: " + getValidIndexes(validMoves) + " and -1 ."
             + "Provide your answer with only one number (the index). Only one number!";
 
     return msgString;
   }
+//  Instruct to do best move, given the rules
+//  public static String createMessage(Board board, Stone currentStone, List<GoMove> validMoves) {
+//    String msgString =
+//        "In the game GO a " + board.SIZE + " by " + board.SIZE + " board is given. "
+//            + "The index of the top left is 0 and top right is " + new String(
+//            String.valueOf(board.SIZE - 1)) + ". "
+//            + "The Chinees rules are applied and suicide moves are allowed, we are only interested in the territory and the stones on the board, captures are NOT counted. "
+//            + "When Black has its stones at the following indexes: " + getIndexesStones(board,
+//            Stone.BLACK) + ". "
+//            + "and white has its stones at indexes: " + getIndexesStones(board,
+//            Stone.WHITE) + ". "
+//            + "Where would the best place be for " + nameStone(currentStone)
+//            + "How would the best move look like, given that I want to win the game."
+//            + "If a pass would be the best option, answer with -1."
+//            + "The only indexes allowed are: " + getValidIndexes(validMoves) + " and -1 ."
+//            + "Provide your answer with only one number (the index). Only one number!";
+//
+//    return msgString;
+//  }
 
   private static String getValidIndexes(List<GoMove> validMoves) {
     String indexString = "";

@@ -89,7 +89,7 @@ public class GameClient {
             break;
           case "AION":
             this.setAIplayer(true);
-            if (this.currentStone == game.getTurn().getStone()){
+            if (game!=null && this.currentStone == game.getTurn().getStone()){
               doAIMove();
             }
             this.receiveMessage("AI player is activated.");

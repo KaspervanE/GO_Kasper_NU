@@ -30,7 +30,7 @@ public class GameServer extends SocketServer {
     this.clientList = new ArrayList<>();
     this.gameQueue = new LinkedBlockingQueue<>();
     this.gamesList = new ArrayList<>();
-    this.boardSize= 13;
+    this.boardSize = 9;
   }
 
   /**
@@ -195,6 +195,7 @@ public class GameServer extends SocketServer {
     ch2.sendGameMessage(
         Protocol.GAME_STARTED + Protocol.SEPARATOR + ch1.getUsername() + "," + ch2.getUsername()
             + Protocol.SEPARATOR + game.getBoardSize());
+    ch1.sendGameMessage(Protocol.MAKE_MOVE);
   }
 
   public void helloMessage(ClientHandler ch) {
@@ -239,24 +240,26 @@ public class GameServer extends SocketServer {
         switch (split[0].toUpperCase()) {
           case "SIZE":
             int size = Integer.parseInt(split[1]);
-            if (size>3 && size < 25) {
+            if (size > 3 && size < 25) {
               this.setBoardSize(Integer.parseInt(split[1]));
-              System.out.println("Board size is set to: "+ size);
+              System.out.println("Board size is set to: " + size);
             } else {
-              System.out.println(size+" is not a valid board size 4~25");
+              System.out.println(size + " is not a valid board size 4~25");
             }
             break;
           case "QUEUE":
             System.out.println("QUEUE: ");
-            for(ClientHandler ch : gameQueue) {
-              System.out.println("   - " +ch.getUsername());
+            for (ClientHandler ch : gameQueue) {
+              System.out.println("   - " + ch.getUsername());
             }
             break;
           case "GAMES":
             System.out.println("Current games: ");
             int counter = 0;
-            for(GoGame game : gamesList) {
-              System.out.println("   - " +counter+ ": "+game.getPlayerOne().getUsername() + " vs " + game.getPlayerTwo().getUsername());
+            for (GoGame game : gamesList) {
+              System.out.println(
+                  "   - " + counter + ": " + game.getPlayerOne().getUsername() + " vs "
+                      + game.getPlayerTwo().getUsername());
               counter++;
             }
             break;

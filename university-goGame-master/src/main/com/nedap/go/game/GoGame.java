@@ -1,5 +1,6 @@
 package main.com.nedap.go.game;
 
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +40,10 @@ public class GoGame implements Game {
     this.playerTwo.setStone(Stone.WHITE);
     this.currentPlayer = this.playerOne;
     this.useTimer = useTimer;
-    setTimer();
+    if (this.useTimer) {
+      setTimer();
+    }
+
   }
 
 
@@ -50,7 +54,11 @@ public class GoGame implements Game {
 
   public void setTimer() {
     GoGame currentGameObject = this;
+    if (timer!=null){
+      cancelTimer();
+    }
     timer = new Timer();
+    System.out.println("Timer set.");
     timer.schedule(new TimerTask() {
       @Override
       public void run() {
