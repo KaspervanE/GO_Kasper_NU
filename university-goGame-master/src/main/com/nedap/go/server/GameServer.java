@@ -153,7 +153,7 @@ public class GameServer extends SocketServer {
   public void addToQueue(ClientHandler ch) {
     lock.lock();
     if (clientHandlerIsInGame(ch)) {
-      ch.sendGameMessage("You cant queue when you are in a game.");
+      ch.sendGameMessage(Protocol.ERROR+Protocol.SEPARATOR+ "You cant queue when you are in a game.");
       lock.unlock();
       return;
     }

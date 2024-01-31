@@ -12,6 +12,8 @@ public class GoTUI {
   boolean isRunning;
   GameClient gameClient;
 
+  private boolean GUIActive;
+
   public GoTUI(Socket socket) {
     this.gameClient = new GameClient(socket, "TempName_1");
   }
@@ -36,6 +38,8 @@ public class GoTUI {
 
   public static void main(String[] args) throws UnknownHostException {
     Scanner sc = new Scanner(System.in);
+    System.out.println("Do you want to play with a GUI? [y/n]");
+    String withGui = sc.next();
     System.out.println("Provide IP address:");
     String ipAddress = sc.next();
     InetAddress address;
@@ -51,11 +55,18 @@ public class GoTUI {
     try {
       GoTUI goTUI = new GoTUI(new Socket(address, portNum));
       System.out.println("Connection successful.");
+      if (withGui.equalsIgnoreCase("y") || withGui.equalsIgnoreCase("yes")) {
+        goTUI.activateGUI();
+      }
       goTUI.run();
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
 
+  }
+
+  private void activateGUI() {
+    this.GUIActive = true;
   }
 
 }

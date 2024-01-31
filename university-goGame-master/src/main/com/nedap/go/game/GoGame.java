@@ -58,7 +58,6 @@ public class GoGame implements Game {
       cancelTimer();
     }
     timer = new Timer();
-    System.out.println("Timer set.");
     timer.schedule(new TimerTask() {
       @Override
       public void run() {
@@ -144,7 +143,7 @@ public class GoGame implements Game {
 
   public String getWinnerWithStones() {
     if (this.getWinner() != null) {
-      return "Winner " + this.getWinner().getUsername() + " (" + this.getWinner().getStone()
+      return "Winner " + this.getWinner().getUsername() + " (" + this.getWinner().getStone().getName()
           + ") with a score of: " + this.getScore(this.getWinner().getStone()) + " versus: "
           + this.getScore(this.getLoser().getStone());
     } else {
