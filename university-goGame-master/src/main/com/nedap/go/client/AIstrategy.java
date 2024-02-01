@@ -6,7 +6,6 @@ import main.com.nedap.go.board.Board;
 import main.com.nedap.go.board.Stone;
 import main.com.nedap.go.game.GoMove;
 import main.com.nedap.go.game.Move;
-import org.testng.internal.EclipseInterface;
 
 
 // AI strategy is used to determine the best move with ChatGPT output
