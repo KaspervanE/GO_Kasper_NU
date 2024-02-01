@@ -7,11 +7,11 @@ import java.net.UnknownHostException;
 import java.util.Scanner;
 import main.com.nedap.go.client.GameClient;
 
+// Class to start the game Go with a TUI and an optional GUI to represent the board.
 public class GoTUI {
 
   boolean isRunning;
   GameClient gameClient;
-
 
 
   public GoTUI(Socket socket) {
@@ -64,7 +64,6 @@ public class GoTUI {
     }
 
   }
-
 
 
 }
