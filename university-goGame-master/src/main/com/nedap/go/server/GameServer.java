@@ -171,6 +171,7 @@ public class GameServer extends SocketServer {
     }
     this.gameQueue.offer(ch);
     if (this.gameQueue.size() > 1) {
+      ch.sendGameMessage(Protocol.QUEUED);
       startGame(this.gameQueue.poll(), this.gameQueue.poll());
     } else {
       ch.sendGameMessage(Protocol.QUEUED);
