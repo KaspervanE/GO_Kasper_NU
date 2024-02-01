@@ -93,6 +93,7 @@ public class GoGuiIntegrator implements GoGui {
 
 	@Override
 	public synchronized void stopGUI() {
+		javafx.application.Platform.exit();
 		// Not implemented yet
 	}
 

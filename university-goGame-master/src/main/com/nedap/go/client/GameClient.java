@@ -5,9 +5,12 @@ import java.io.IOException;
 import java.net.Socket;
 import java.rmi.server.ExportException;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import main.com.nedap.go.board.Stone;
 import main.com.nedap.go.game.GoGame;
 import main.com.nedap.go.game.GoMove;
+import main.com.nedap.go.gui.GoGuiIntegrator;
 import main.com.nedap.go.protocol.Protocol;
 
 public class GameClient {
@@ -18,7 +21,8 @@ public class GameClient {
   private Stone currentStone;
   private GoGame game;
   private boolean playerAIOn;
-
+  private boolean GUIActive;
+  private GoGuiIntegrator gogui;
   public GameClient(Socket socket, String username) {
     try {
       this.clientConnection = new ClientConnection(socket, this);
@@ -145,6 +149,64 @@ public class GameClient {
 
   public boolean clientIsWinning() {
     return game.getWinner().getUsername().equals(username);
+  }
+
+  public boolean isGUIActive() {
+    return GUIActive;
+  }
+
+  public void setGUIActive(boolean GUIActive) {
+    this.GUIActive = GUIActive;
+  }
+
+  public GoGuiIntegrator getGogui() {
+    return gogui;
+  }
+
+  public void createAndStartGUI(int boardSize) {
+    gogui = new GoGuiIntegrator(true, true, boardSize);
+    gogui.startGUI();
+  }
+
+  public void updateGUI(int index, Stone stone) {
+    moveGui(index,stone);
+    updateTerritoryGUI();
+  }
+
+  public void moveGui (int index, Stone stone) {
+    if (stone.getName().equals("BLACK")) {
+      gogui.addStone(game.getBoard().getColFromIndex(index),game.getBoard().getRowFromIndex(index),false);
+    } else if (stone.getName().equals("WHITE")){
+      gogui.addStone(game.getBoard().getColFromIndex(index),game.getBoard().getRowFromIndex(index),true);
+    }
+  }
+
+  public void updateTerritoryGUI(){
+    Map<Stone, Set<Integer>> area = this.game.getBoard().getAreaIndexes();
+    for (Stone stone : area.keySet()) {
+      for (int index: area.get(stone)) {
+        if (stone.getName().equals("BLACK")) {
+          gogui.addAreaIndicator(game.getBoard().getColFromIndex(index),
+              game.getBoard().getRowFromIndex(index), false);
+        } else if (stone.getName().equals("WHITE")) {
+          gogui.addAreaIndicator(game.getBoard().getColFromIndex(index),
+              game.getBoard().getRowFromIndex(index), true);
+        } else {
+          gogui.addStone(game.getBoard().getColFromIndex(index),
+              game.getBoard().getRowFromIndex(index),true);
+          gogui.removeStone(game.getBoard().getColFromIndex(index),
+              game.getBoard().getRowFromIndex(index));
+        }
+      }
+    }
+  }
+
+  public void resetGUI(){
+    gogui.clearBoard();
+  }
+
+  public void stopGUI() {
+    gogui.stopGUI();
   }
 
   public void doAIMove() {

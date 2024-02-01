@@ -14,11 +14,14 @@ public class Board {
   public final int SIZE; // Size of the board
   private Stone[] fields; // Array for storing the stones on the board
 
+  private Map<Stone,Set<Integer>> areaIndexes;
+
   // Initialize board given a size
   public Board(int size) {
     this.SIZE = size;
     this.fields = new Stone[SIZE * SIZE];
     this.previousBoards = new ArrayList<>();
+    this.areaIndexes = new HashMap<>();
     // fill board with 'empty' stones
     reset();
   }
@@ -69,6 +72,7 @@ public class Board {
     }
   }
 
+  // Check if the board is a repetition and the field is not empty
   public boolean isValidField(Stone stone, int ind){
     try {
       if (isEmptyField(ind)) {
@@ -257,6 +261,7 @@ public class Board {
     }
   }
 
+  // When different groups exist, the opponents stones should be captured first
   public boolean areDifferentGroups(List<Group> groups) {
     Stone firstStone = groups.get(0).getStone();
     for (Group group : groups) {
@@ -267,12 +272,14 @@ public class Board {
     return false;
   }
 
+  // Get the areas for each stone type
   public Map<Stone, Integer> determineTerritories() {
     Map<Stone, Integer> territoriesScores = new HashMap<>();
     territoriesScores.put(Stone.EMPTY, 0);
     territoriesScores.put(Stone.BLACK, 0);
     territoriesScores.put(Stone.WHITE, 0);
     Set<Integer> visited = new HashSet<>();
+    emptyAreaIndexes();
 
     for (int ind = 0; ind < SIZE * SIZE; ind++) {
       if (this.getField(ind) == Stone.EMPTY && !visited.contains(ind)) {
@@ -287,7 +294,6 @@ public class Board {
       Map<Stone, Integer> territoriesScores) {
     Set<Integer> territoryPoints = new HashSet<>();
     Stone currentTerritory = Stone.EMPTY; // Default to neutral territory
-
     neighborSearch(ind, visited, territoryPoints);
 
     // Determine the stone color of the territory based on surrounding stones
@@ -313,6 +319,7 @@ public class Board {
     int areaTerritory = 0;
     for (int currentIndex : territoryPoints) {
       if (this.getField(currentIndex).equals(Stone.EMPTY)) {
+        this.areaIndexes.get(currentTerritory).add(currentIndex);
         areaTerritory++;
       }
     }
@@ -320,6 +327,13 @@ public class Board {
     territoriesScores.put(currentTerritory,
         territoriesScores.get(currentTerritory) + areaTerritory);
 
+  }
+
+  private void emptyAreaIndexes() {
+    areaIndexes = new HashMap<>();
+    areaIndexes.put(Stone.BLACK,new HashSet<>());
+    areaIndexes.put(Stone.WHITE,new HashSet<>());
+    areaIndexes.put(Stone.EMPTY,new HashSet<>());
   }
 
   // Looking for neighbors based on the depth-first search algorithm
@@ -357,6 +371,10 @@ public class Board {
     for (int i = 0; i < SIZE * SIZE; i++) {
       this.fields[i] = Stone.EMPTY;
     }
+  }
+
+  public Map<Stone, Set<Integer>> getAreaIndexes() {
+    return areaIndexes;
   }
 
   @Override

@@ -45,9 +45,21 @@ public class ClientConnection extends SocketConnection {
           this.gameClient.startGame(
               new GoGame(boardSize, new GamePlayer(usernames[0]), new GamePlayer(usernames[1]),false));
           this.gameClient.receiveMessage(msg);
+          if (this.gameClient.isGUIActive()) {
+            if (this.gameClient.getGogui()!=null) {
+              // Reset the previous GUI if it exists.
+              this.gameClient.resetGUI();
+              this.gameClient.getGogui().setBoardSize(boardSize);
+            } else {
+              this.gameClient.createAndStartGUI(boardSize);
+            }
+          }
           break;
         case Protocol.MOVE:
           this.gameClient.doMove(Integer.parseInt(split[1]), Stone.retrieveByName(split[2]));
+          if (this.gameClient.isGUIActive()) {
+            this.gameClient.updateGUI(Integer.parseInt(split[1]),Stone.retrieveByName(split[2]));
+          }
           this.gameClient.receiveMessage(msg);
           break;
         case Protocol.MAKE_MOVE:
@@ -63,9 +75,12 @@ public class ClientConnection extends SocketConnection {
           this.gameClient.doPass();
           this.gameClient.receiveMessage(msg);
           break;
+        case Protocol.GAME_OVER:
+          // Do not remove game object to have a chance to watch the board after the game
         default:
           this.gameClient.receiveMessage(msg);
           break;
+
       }
     }
     lock.unlock();

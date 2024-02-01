@@ -199,6 +199,7 @@ public class GoGame implements Game {
       }
     } else {
       this.board.captureGroups(this.currentPlayer.getStone());
+      board.determineTerritories();
       this.previousPass = false;
     }
     switchTurns();
