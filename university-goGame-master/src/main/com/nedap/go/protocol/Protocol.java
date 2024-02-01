@@ -1,12 +1,10 @@
 package main.com.nedap.go.protocol;
 
-/**
- * Protocol class with constants for creating protocol messages.
+/*
+ Protocol class with constants for creating protocol messages, discussed with the group.
  */
 public final class Protocol {
 
-  //=-=TEMP=-=TEMP=-=TEMP=-=TEMP=-=TEMP=-=TEMP=-=TEMP=-=
-  public static final String FROM = "FROM-TEMP";
   public static final String SEPARATOR = "~";
   public static final String LOGIN = "LOGIN";
   public static final String QUEUE = "QUEUE";

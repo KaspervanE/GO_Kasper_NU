@@ -7,12 +7,14 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+// Connection with ChatGPT API
+
 public class ChatGPTAPIClient {
 
   public static String chatGPT(String message) {
     String url = "https://api.openai.com/v1/chat/completions";
-    String apiKey = "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"; // API key goes here
-    String model = "gpt-3.5-turbo"; // model of chatgpt api: gpt-4-1106-preview
+    String apiKey = "____________"; // API key goes here
+    String model = "gpt-3.5-turbo"; // model of new chatgpt api: gpt-4-1106-preview
 
     try {
       // Create the HTTP POST request;

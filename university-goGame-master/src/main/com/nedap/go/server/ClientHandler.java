@@ -5,6 +5,7 @@ import main.com.nedap.go.game.GoGame;
 import main.com.nedap.go.game.GoMove;
 import main.com.nedap.go.protocol.Protocol;
 
+// Class to make sure that every client can individually communicate with the server
 public class ClientHandler {
 
   private ServerConnection serverConnection;
@@ -38,6 +39,7 @@ public class ClientHandler {
     this.game = game;
   }
 
+  // Make sure to notify the server on a disconnect
   public void handleDisconnect() {
     if (game != null) {
       doResign();
@@ -46,8 +48,9 @@ public class ClientHandler {
     server.removeClient(this);
   }
 
+  // Store message on server and send message to client
   public void sendGameMessage(String msg) {
-    System.out.println("TO "+ this.username+ ": " + msg);
+    System.out.println("TO " + this.username + ": " + msg);
     this.serverConnection.sendGameMessage(msg);
   }
 
@@ -60,6 +63,7 @@ public class ClientHandler {
     }
   }
 
+  // Do a move for the client, check if it is valid, and update server and other client in the game
   public void doMove(int index) {
     if (game.getTurn().getClientHandler().equals(this)) {
       Stone stone = game.getMyStone(this.username);
@@ -69,11 +73,11 @@ public class ClientHandler {
         game.updateBoard(false);
         this.server.informClientsMessages(game, Protocol.MAKE_MOVE);
       } else {
-        sendGameMessage(Protocol.ERROR+Protocol.SEPARATOR+"Invalid move");
+        sendGameMessage(Protocol.ERROR + Protocol.SEPARATOR + "Invalid move");
         this.server.informClientsMessages(game, Protocol.MAKE_MOVE);
       }
     } else {
-      sendGameMessage(Protocol.ERROR+Protocol.SEPARATOR+"Not your turn");
+      sendGameMessage(Protocol.ERROR + Protocol.SEPARATOR + "Not your turn");
     }
 
   }

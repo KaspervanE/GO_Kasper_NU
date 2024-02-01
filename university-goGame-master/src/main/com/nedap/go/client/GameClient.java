@@ -13,6 +13,13 @@ import main.com.nedap.go.game.GoMove;
 import main.com.nedap.go.gui.GoGuiIntegrator;
 import main.com.nedap.go.protocol.Protocol;
 
+/*
+  Client for the game GO, is connected to a client connection.
+  Handles the moves and stores the game/board to keep track of the game.
+  Also handles input from the TUI to provide extra information.
+ */
+
+
 public class GameClient {
 
   private ClientConnection clientConnection;
@@ -23,6 +30,7 @@ public class GameClient {
   private boolean playerAIOn;
   private boolean GUIActive;
   private GoGuiIntegrator gogui;
+
   public GameClient(Socket socket, String username) {
     try {
       this.clientConnection = new ClientConnection(socket, this);
@@ -50,7 +58,7 @@ public class GameClient {
     System.out.println(msg);
   }
 
-  public void doMove(int ind1,Stone stone) {
+  public void doMove(int ind1, Stone stone) {
     GoMove move = new GoMove(ind1, stone);
     this.game.doMove(move);
     this.game.updateBoard(false);
@@ -76,6 +84,7 @@ public class GameClient {
     System.out.println(str);
   }
 
+  // Handles user input for more information
   public void handleInput(String msg) {
     String[] split;
     try {
@@ -93,7 +102,7 @@ public class GameClient {
             break;
           case "AION":
             this.setAIplayer(true);
-            if (game!=null && this.currentStone == game.getTurn().getStone()){
+            if (game != null && this.currentStone == game.getTurn().getStone()) {
               doAIMove();
             }
             this.receiveMessage("AI player is activated.");
@@ -163,28 +172,32 @@ public class GameClient {
     return gogui;
   }
 
+  // Start the GUI
   public void createAndStartGUI(int boardSize) {
     gogui = new GoGuiIntegrator(true, true, boardSize);
     gogui.startGUI();
   }
 
+  // Update the GUI with the move and territory
   public void updateGUI(int index, Stone stone) {
-    moveGui(index,stone);
+    moveGui(index, stone);
     updateTerritoryGUI();
   }
 
-  public void moveGui (int index, Stone stone) {
+  public void moveGui(int index, Stone stone) {
     if (stone.getName().equals("BLACK")) {
-      gogui.addStone(game.getBoard().getColFromIndex(index),game.getBoard().getRowFromIndex(index),false);
-    } else if (stone.getName().equals("WHITE")){
-      gogui.addStone(game.getBoard().getColFromIndex(index),game.getBoard().getRowFromIndex(index),true);
+      gogui.addStone(game.getBoard().getColFromIndex(index), game.getBoard().getRowFromIndex(index),
+          false);
+    } else if (stone.getName().equals("WHITE")) {
+      gogui.addStone(game.getBoard().getColFromIndex(index), game.getBoard().getRowFromIndex(index),
+          true);
     }
   }
 
-  public void updateTerritoryGUI(){
+  public void updateTerritoryGUI() {
     Map<Stone, Set<Integer>> area = this.game.getBoard().getAreaIndexes();
     for (Stone stone : area.keySet()) {
-      for (int index: area.get(stone)) {
+      for (int index : area.get(stone)) {
         if (stone.getName().equals("BLACK")) {
           gogui.addAreaIndicator(game.getBoard().getColFromIndex(index),
               game.getBoard().getRowFromIndex(index), false);
@@ -192,8 +205,9 @@ public class GameClient {
           gogui.addAreaIndicator(game.getBoard().getColFromIndex(index),
               game.getBoard().getRowFromIndex(index), true);
         } else {
+          // No function provided for removing the areaIndicator, so this...
           gogui.addStone(game.getBoard().getColFromIndex(index),
-              game.getBoard().getRowFromIndex(index),true);
+              game.getBoard().getRowFromIndex(index), true);
           gogui.removeStone(game.getBoard().getColFromIndex(index),
               game.getBoard().getRowFromIndex(index));
         }
@@ -201,17 +215,16 @@ public class GameClient {
     }
   }
 
-  public void resetGUI(){
+  public void resetGUI() {
     gogui.clearBoard();
   }
 
-  public void stopGUI() {
-    gogui.stopGUI();
-  }
 
+  // Let the AI do the move by calling AI Strategy determine index
   public void doAIMove() {
     List<GoMove> validMoves = game.getValidMoves();
     if (game.isPreviousPass() && clientIsWinning()) {
+      // When you are ahead and opponent passes, pass for the win
       sendGameMessage(Protocol.PASS);
       return;
     }
@@ -220,7 +233,7 @@ public class GameClient {
     } else {
       int moveIndex = AIstrategy.determineBestIndex(this.game.getBoard(), getStone(),
           validMoves);
-      if (moveIndex==-1) {
+      if (moveIndex == -1) {
         sendGameMessage(Protocol.PASS);
       } else {
         sendGameMessage(Protocol.MOVE + Protocol.SEPARATOR + moveIndex);

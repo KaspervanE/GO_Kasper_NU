@@ -1,7 +1,9 @@
 package main.com.nedap.go.game;
 
 import java.util.List;
-import main.com.nedap.go.player.Player;
+import main.com.nedap.go.player.GamePlayer;
+
+// This interface has been used from another game (TicTacToe) from the university.
 
 /**
  * A simple turn-based game.
@@ -18,13 +20,13 @@ public interface Game {
    * Query whose turn it is
    * @return the player whose turn it is
    */
-  Player getTurn();
+  GamePlayer getTurn();
 
   /**
    * Get the winner of the game. If the game is a draw, then this method returns null.
    * @return the winner, or null if no player is the winner or the game is not over
    */
-  Player getWinner();
+  GamePlayer getWinner();
 
   /**
    * Return all moves that are valid in the current state of the game

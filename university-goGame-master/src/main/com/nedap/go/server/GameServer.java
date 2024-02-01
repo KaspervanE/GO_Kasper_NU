@@ -12,9 +12,10 @@ import java.util.concurrent.locks.ReentrantLock;
 import main.com.nedap.go.game.GoGame;
 import main.com.nedap.go.networking.SocketServer;
 import main.com.nedap.go.player.GamePlayer;
-import main.com.nedap.go.player.Player;
 import main.com.nedap.go.protocol.Protocol;
 
+// The server to host multiple games of Go.
+// Takes care of the connection, clients (in and out the queue), active games and messages.
 public class GameServer extends SocketServer {
 
   private Queue<ClientHandler> gameQueue;
@@ -95,6 +96,7 @@ public class GameServer extends SocketServer {
     this.clientList.remove(client);
   }
 
+  // When game is ended by resign the winner is the client who did not resign
   public void removeGameByResign(GoGame game, String username) {
     String winner;
     if (game.getPlayerOne().getUsername().equals(username)) {
@@ -111,6 +113,7 @@ public class GameServer extends SocketServer {
     gamesList.remove(game);
   }
 
+  // Remove the game when game is over and update clients with the winner (or draw)
   public void removeGame(GoGame game) {
     for (GoGame listInGame : gamesList) {
       if (listInGame.equals(game)) {
@@ -121,6 +124,7 @@ public class GameServer extends SocketServer {
     }
   }
 
+  // inform all clients in a game with the update on the game.
   public void informClientsMessages(GoGame game, String protocolMsg) {
     String[] split = protocolMsg.split(Protocol.SEPARATOR);
     for (ClientHandler ch : clientList) {
@@ -153,7 +157,8 @@ public class GameServer extends SocketServer {
   public void addToQueue(ClientHandler ch) {
     lock.lock();
     if (clientHandlerIsInGame(ch)) {
-      ch.sendGameMessage(Protocol.ERROR+Protocol.SEPARATOR+ "You cant queue when you are in a game.");
+      ch.sendGameMessage(
+          Protocol.ERROR + Protocol.SEPARATOR + "You cant queue when you are in a game.");
       lock.unlock();
       return;
     }
@@ -183,6 +188,7 @@ public class GameServer extends SocketServer {
     return false;
   }
 
+  // Start/create a game with two clients and update both clients that the game has started
   public void startGame(ClientHandler ch1, ClientHandler ch2) {
     GoGame game = new GoGame(this.boardSize, new GamePlayer(ch1.getUsername(), ch1),
         new GamePlayer(ch2.getUsername(), ch2));
@@ -203,13 +209,6 @@ public class GameServer extends SocketServer {
     ch.sendGameMessage(Protocol.HELLO + Protocol.SEPARATOR + helloMsg);
   }
 
-  public void handleChatMessage(ClientHandler client, String msg) {
-    System.out.println(client.getUsername() + " said: " + msg);
-    for (ClientHandler ch : this.clientList) {
-      ch.sendGameMessage(msg);
-    }
-  }
-
   public boolean isValidUsername(String newUser) {
     for (ClientHandler ch : clientList) {
       if (newUser.equalsIgnoreCase(ch.getUsername())) {
@@ -219,10 +218,10 @@ public class GameServer extends SocketServer {
     return true;
   }
 
+  // method used to read input from user to update server settings
   public void run() {
     Scanner sc = new Scanner(System.in);
     while (true) {
-      //System.out.println("Provide input:");
       this.readMessage(sc);
     }
   }
@@ -232,6 +231,7 @@ public class GameServer extends SocketServer {
     this.handleInput(input);
   }
 
+  // handle input from user to update server settings
   public void handleInput(String input) {
     String[] split;
     try {
@@ -273,6 +273,7 @@ public class GameServer extends SocketServer {
     }
   }
 
+  // Start the server on a given port.
   public static void main(String[] args) {
     GameServer server;
     while (true) {

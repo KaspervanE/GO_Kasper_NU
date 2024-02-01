@@ -2,6 +2,7 @@ package main.com.nedap.go.board;
 
 import java.util.List;
 
+// Group class created to store groups of stones
 public class Group {
   private List<Integer> indexes;
   private Stone stone;

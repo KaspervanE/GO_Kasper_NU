@@ -8,8 +8,11 @@ import main.com.nedap.go.game.GoMove;
 import main.com.nedap.go.game.Move;
 import org.testng.internal.EclipseInterface;
 
+
+// AI strategy is used to determine the best move with ChatGPT output
 public class AIstrategy {
 
+  // Given a prompt return the best index chatGPT provides
   public static int determineBestIndex(Board board, Stone currentStone, List<GoMove> validMoves) {
     String msgString = createMessage(board, currentStone, validMoves);
     String responseString = ChatGPTAPIClient.chatGPT(msgString);
@@ -38,6 +41,7 @@ public class AIstrategy {
     return interpretResponse(responseString, validMoves);
   }
 
+  // evaluate the result of ChatGPT, and give back the answer (random if no valid move was provided by ChatGPT)
   private static int interpretResponse(String responseString, List<GoMove> validMoves) {
     int response;
     try {
@@ -81,7 +85,7 @@ public class AIstrategy {
     return false;
   }
 
-  //   Instruct to do best move, by spreading out and capturing
+  // Instruct to do best move, by spreading out and capturing
   public static String createMessage(Board board, Stone currentStone, List<GoMove> validMoves) {
     String msgString =
         "In the game GO a " + board.SIZE + " by " + board.SIZE + " board is given. "

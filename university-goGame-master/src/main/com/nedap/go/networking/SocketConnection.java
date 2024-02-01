@@ -4,6 +4,8 @@ import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 
+// Classes provided by the university for establishing a connection on a socket
+
 /**
  * Wrapper for a Socket and implements reading messages that consist of a single line from the socket.
  * This class is not thread-safe.

@@ -11,6 +11,8 @@ import main.com.nedap.go.networking.SocketConnection;
 import main.com.nedap.go.player.GamePlayer;
 import main.com.nedap.go.protocol.Protocol;
 
+// Class listens to the socket and handles the input and output of the socket.
+// Input is handled according to the protocol.
 public class ClientConnection extends SocketConnection {
 
   private Lock lock = new ReentrantLock();
@@ -86,14 +88,6 @@ public class ClientConnection extends SocketConnection {
     lock.unlock();
   }
 
-  public static boolean isInteger(String str) {
-    try {
-      Integer.parseInt(str);
-      return true;
-    } catch (NumberFormatException e) {
-      return false;
-    }
-  }
 
   @Override
   protected void handleDisconnect() {
@@ -109,8 +103,5 @@ public class ClientConnection extends SocketConnection {
     super.sendMessage(Protocol.LOGIN + Protocol.SEPARATOR + username);
   }
 
-  public GameClient getChatClient() {
-    return gameClient;
-  }
 }
 

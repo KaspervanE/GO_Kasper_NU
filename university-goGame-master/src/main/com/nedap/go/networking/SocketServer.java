@@ -6,6 +6,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 
+// Classes provided by the university for establishing a connection on a socket
+
 /**
  * Implements a networking server which accepts connection from clients.
  */

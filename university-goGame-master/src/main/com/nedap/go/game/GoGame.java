@@ -1,9 +1,7 @@
 package main.com.nedap.go.game;
 
-import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.locks.Lock;
@@ -11,10 +9,11 @@ import java.util.concurrent.locks.ReentrantLock;
 import main.com.nedap.go.board.Board;
 import main.com.nedap.go.board.Stone;
 import main.com.nedap.go.player.GamePlayer;
-import main.com.nedap.go.player.Player;
-import main.com.nedap.go.server.ClientHandler;
-import java.time.Instant;
 
+/*
+  The game class takes care of the state of the game, including:
+  the board, players, turn, score, and timer (optional)
+ */
 public class GoGame implements Game {
 
   private GamePlayer playerOne;
@@ -29,7 +28,7 @@ public class GoGame implements Game {
   private Lock lock = new ReentrantLock();
 
   public GoGame(int size, GamePlayer playerOne, GamePlayer playerTwo) {
-    this(size, playerOne, playerTwo,true);
+    this(size, playerOne, playerTwo, true);
   }
 
   public GoGame(int size, GamePlayer playerOne, GamePlayer playerTwo, boolean useTimer) {
@@ -52,9 +51,11 @@ public class GoGame implements Game {
     return this.currentPlayer;
   }
 
+  // After 1 minute the player waited to long and should resign
+  // Timer resets at every move
   public void setTimer() {
     GoGame currentGameObject = this;
-    if (timer!=null){
+    if (timer != null) {
       cancelTimer();
     }
     timer = new Timer();
@@ -75,9 +76,6 @@ public class GoGame implements Game {
     timer.cancel();
   }
 
-  public String getTurnAndStone() {
-    return this.currentPlayer.getUsername() + " (" + this.currentPlayer.getStone() + ")";
-  }
 
   public int getBoardSize() {
     return board.SIZE;
@@ -143,7 +141,8 @@ public class GoGame implements Game {
 
   public String getWinnerWithStones() {
     if (this.getWinner() != null) {
-      return "Winner " + this.getWinner().getUsername() + " (" + this.getWinner().getStone().getName()
+      return "Winner " + this.getWinner().getUsername() + " (" + this.getWinner().getStone()
+          .getName()
           + ") with a score of: " + this.getScore(this.getWinner().getStone()) + " versus: "
           + this.getScore(this.getLoser().getStone());
     } else {
@@ -154,7 +153,7 @@ public class GoGame implements Game {
 
   @Override
   public List<GoMove> getValidMoves() {
-    List<GoMove> moves = new ArrayList<GoMove>();
+    List<GoMove> moves = new ArrayList<>();
     for (int i = 0; i < board.SIZE * board.SIZE; i++) {
       if (board.isValidField(this.currentPlayer.getStone(), i)) {
         moves.add(new GoMove(i, this.currentPlayer.getStone()));
@@ -170,6 +169,7 @@ public class GoGame implements Game {
         && move.getStone() == this.currentPlayer.getStone();
   }
 
+  // Set the stone on the right index and reset the timer
   @Override
   public boolean doMove(Move move) {
     lock.lock();
@@ -186,7 +186,8 @@ public class GoGame implements Game {
 
   }
 
-  // update the board by capturing the groups, updating the previousPass and switching turns.
+  // update the board by capturing the groups, updating the previousPass,
+  // update the territory and switching turns.
   public void updateBoard(boolean playerPassed) {
     lock.lock();
     if (playerPassed) {
